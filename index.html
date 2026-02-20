@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Mi Amor Eterno - Adolfo & Marlen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #ff69b4;
+            --secondary-yellow: #ffd700;
+            --tertiary-red: #e74c3c;
+            --bg-light: #fff0f5;
+            --text-dark: #333;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, var(--bg-light) 0%, #ffeaf0 100%);
+            color: var(--text-dark);
+            text-align: center;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Corazones y destellos de fondo animadores */
+        .background-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .heart-float, .sparkle-float {
+            position: absolute;
+            color: var(--primary-pink);
+            opacity: 0.3;
+            animation: floatAndFade 15s infinite ease-out;
+        }
+
+        .sparkle-float {
+            color: var(--secondary-yellow);
+            font-size: 1.5rem;
+            animation: floatAndFadeSparkle 10s infinite ease-out;
+        }
+
+        @keyframes floatAndFade {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        @keyframes floatAndFadeSparkle {
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.2); opacity: 0; }
+            50% { opacity: 0.7; transform: rotate(180deg); }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1); opacity: 0; }
+        }
+
+        header {
+            background: linear-gradient(to bottom right, var(--primary-pink), var(--secondary-yellow));
+            color: white;
+            padding: 80px 20px 600px; /* Espacio para el clip-path */
+            padding: 80px 20px 60px;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0% 100%);
+            margin-bottom: 50px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: -30px auto 50px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+        }
+
+        h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            color: var(--primary-pink);
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '💖';
+            position: absolute;
+            bottom: -5px;
+            right: -25px;
+            font-size: 1.5rem;
+        }
+
+        /* Diseño del Contador */
+        #countdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
+        }
+
+        .time-unit {
+            background: white;
+            padding: 25px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--secondary-yellow);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            animation: pulse 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+
+        .time-unit span {
+            display: block;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--primary-pink);
+        }
+
+        .time-unit label {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        /* Video de YouTube */
+        .video-box {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 5px solid var(--primary-pink);
+        }
+
+        .video-box iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* Galería de Fotos */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 3px solid white;
+            transition: 0.3s;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.05) rotate(2deg);
+            border-color: var(--secondary-yellow);
+        }
+
+        /* Carta Estilo Manuscrito */
+        .love-letter {
+            background: #fff8e1;
+            padding: 40px;
+            border-radius: 15px;
+            line-height: 1.8;
+            font-size: 1.4rem;
+            color: #5d4037;
+            text-align: left;
+            border-left: 8px solid var(--primary-pink);
+            font-family: 'Great Vibes', cursive;
+        }
+
+        /* Notitas con Fecha */
+        .note-item {
+            background: #ffe3e9;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-yellow);
+            text-align: left;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .note-date {
+            font-weight: 600;
+            color: var(--primary-pink);
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 18px;
+            border-radius: 15px;
+            border: 2px solid #ddd;
+            font-family: 'Open Sans', sans-serif;
+            outline: none;
+            margin-top: 20px;
+            resize: vertical;
+        }
+
+        button {
+            background: var(--primary-pink);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+        }
+
+        button:hover {
+            background: var(--secondary-yellow);
+            transform: scale(1.05);
+        }
+
+        footer {
+            padding: 40px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-effect" id="bg-effects"></div>
+
+    <header>
+        <h1>Mi Amor Eterno</h1>
+        <p>Adolfo & Marlen</p>
+        <p>Nuestro camino juntos, desde aquel mágico 1 de Noviembre</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Tiempo Amándote</h2>
+            <div id="countdown">
+                <div class="time-unit"><span id="y">0</span><label>Años</label></div>
+                <div class="time-unit"><span id="m">0</span><label>Meses</label></div>
+                <div class="time-unit"><span id="d">0</span><label>Días</label></div>
+                <div class="time-unit"><span id="h">0</span><label>Horas</label></div>
+                <div class="time-unit"><span id="min">0</span><label>Min</label></div>
+                <div class="time-unit"><span id="s">0</span><label>Seg</label></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Nuestra Canción</h2>
+            <div class="video-box">
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Nuestros Momentos</h2>
+            <div class="gallery">
+                <img src="https://via.placeholder.com/400x400/ff69b4/ffffff?text=Te+Amo" alt="Recuerdo 1">
+                <img src="https://via.placeholder.com/400x400/ffd700/ffffff?text=Para+Siempre" alt="Recuerdo 2">
+                <img src="https://via.placeholder.com/400x400/ff69b4/ffffff?text=Juntos" alt="Recuerdo 3">
+                <img src="https://via.placeholder.com/400x400/ffd700/ffffff?text=Mi+Vida" alt="Recuerdo 4">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Mi Carta para Ti</h2>
+            <div class="love-letter">
+                Mi niña hermosa,<br><br>
+              ....<br>
+                <b>Adolfo</b> 💖
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Notitas con Amor</h2>
+            <div id="notes-container">
+                <div class="note-item">
+                    <span class="note-date">20 de Febrero del 2026</span>
+                    <div>En la vida todos tenemos un motivo para sonreír y tu eres ese motivo por el cual yo sonrío... ❤️</div>
+                </div>
+            </div>
+            <textarea id="noteInput" rows="3" placeholder="Escribe algo lindo hoy..."></textarea>
+            <button onclick="saveNote()">Guardar Notita</button>
+        </div>
+    </div>
+
+    <footer>
+        Hecho con todo el ❤️ por Adolfo &bull; 2021 - 2026
+    </footer>
+
+    <script>
+        // CONFIGURACIÓN DE LA FECHA DE INICIO (01 Nov 2021)
+        const start = new Date('2021-11-01T00:00:00');
+
+        function updateCountdown() {
+            const now = new Date();
+            let diff = now - start;
+
+            let years = now.getFullYear() - start.getFullYear();
+            let months = (now.getMonth() - start.getMonth()) + (years * 12);
+            let totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('y').innerText = Math.floor(months / 12);
+            document.getElementById('m').innerText = months % 12;
+            document.getElementById('d').innerText = totalDays % 30; // Estimación de días del mes
+            document.getElementById('h').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            document.getElementById('min').innerText = Math.floor((diff / (1000 * 60)) % 60);
+            document.getElementById('s').innerText = Math.floor((diff / 1000) % 60);
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // GENERAR CORAZONES FLOTANTES DE FONDO
+        const bg = document.getElementById('bg-effects');
+        for (let i = 0; i < 20; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-float';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+            heart.style.animationDelay = (Math.random() * -10) + 's';
+            bg.appendChild(heart);
+        }
+
+        // FUNCIÓN PARA GUARDAR NOTAS CON FECHA Y HORA
+        function saveNote() {
+            const text = document.getElementById('noteInput').value.trim();
+            if (!text) return;
+
+            const container = document.getElementById('notes-container');
+            const ahora = new Date();
+            
+            // Formato de fecha para Ubuntu/Navegador
+            const opciones = { 
+                day: '2-digit', month: 'long', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+            };
+            const fechaFormateada = ahora.toLocaleDateString('es-MX', opciones);
+
+            const nuevaNotaHtml = `
+                <div class="note-item">
+                    <span class="note-date">Añadida el: ${fechaFormateada}</span>
+                    <div>${text}</div>
+                </div>`;
+            
+            container.insertAdjacentHTML('afterbegin', nuevaNotaHtml);
+            document.getElementById('noteInput').value = '';
+
+            // Guardar en el navegador (LocalStorage)
+            localStorage.setItem('love_notes_full_version', container.innerHTML);
+        }
+
+        // CARGAR NOTAS GUARDADAS AL ABRIR
+        window.onload = () => {
+            const saved = localStorage.getItem('love_notes_full_version');
+            if (saved) {
+                document.getElementById('notes-container').innerHTML = saved;
+            }
+        };
+    </script>
+</body>
+</html>
