@@ -71,7 +71,6 @@
         header {
             background: linear-gradient(to bottom right, var(--primary-pink), var(--secondary-yellow));
             color: white;
-            padding: 80px 20px 600px; /* Espacio para el clip-path */
             padding: 80px 20px 60px;
             clip-path: polygon(0 0, 100% 0, 100% 90%, 0% 100%);
             margin-bottom: 50px;
@@ -298,7 +297,7 @@
         <div class="card">
             <h2>Nuestra Canción</h2>
             <div class="video-box">
-                <iframe src="" frameborder="0" allowfullscreen></iframe>
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
 
@@ -316,21 +315,16 @@
             <h2>Mi Carta para Ti</h2>
             <div class="love-letter">
                 Mi niña hermosa,<br><br>
-              ....<br>
+                Eres lo mejor que me ha pasado en la vida. Gracias por cada momento y por caminar de mi mano todos estos años. Te amo infinitamente.<br><br>
                 <b>Adolfo</b> 💖
             </div>
         </div>
 
         <div class="card">
             <h2>Notitas con Amor</h2>
-            <div id="notes-container">
-                <div class="note-item">
-                    <span class="note-date">20 de Febrero del 2026</span>
-                    <div>En la vida todos tenemos un motivo para sonreír y tu eres ese motivo por el cual yo sonrío... ❤️</div>
-                </div>
-            </div>
+            <div id="notes-container">Cargando nuestras notitas...</div>
             <textarea id="noteInput" rows="3" placeholder="Escribe algo lindo hoy..."></textarea>
-            <button onclick="saveNote()">Guardar Notita</button>
+            <button id="saveBtn" onclick="saveNote()">Guardar Notita</button>
         </div>
     </div>
 
@@ -339,7 +333,7 @@
     </footer>
 
     <script>
-        // CONFIGURACIÓN DE LA FECHA DE INICIO (01 Nov 2021)
+        // 1. CONFIGURACIÓN DEL CONTADOR (01 Nov 2021)
         const start = new Date('2021-11-01T00:00:00');
 
         function updateCountdown() {
@@ -352,7 +346,7 @@
             
             document.getElementById('y').innerText = Math.floor(months / 12);
             document.getElementById('m').innerText = months % 12;
-            document.getElementById('d').innerText = totalDays % 30; // Estimación de días del mes
+            document.getElementById('d').innerText = totalDays % 30; 
             document.getElementById('h').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
             document.getElementById('min').innerText = Math.floor((diff / (1000 * 60)) % 60);
             document.getElementById('s').innerText = Math.floor((diff / 1000) % 60);
@@ -360,53 +354,90 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // GENERAR CORAZONES FLOTANTES DE FONDO
-        const bg = document.getElementById('bg-effects');
-        for (let i = 0; i < 20; i++) {
-            const heart = document.createElement('div');
-            heart.className = 'heart-float';
-            heart.innerHTML = '❤️';
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
-            heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
-            heart.style.animationDelay = (Math.random() * -10) + 's';
-            bg.appendChild(heart);
+        // 2. GENERAR CORAZONES FLOTANTES
+        function generateHearts() {
+            const bg = document.getElementById('bg-effects');
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-float';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                heart.style.animationDelay = (Math.random() * -10) + 's';
+                bg.appendChild(heart);
+            }
         }
 
-        // FUNCIÓN PARA GUARDAR NOTAS CON FECHA Y HORA
-        function saveNote() {
+        // 3. LÓGICA DE NOTAS CON VERCEL KV
+        const container = document.getElementById('notes-container');
+
+        function renderNote(text, date, isNew = false) {
+            const html = `
+                <div class="note-item">
+                    <span class="note-date">${date}</span>
+                    <div>${text}</div>
+                </div>`;
+            if (isNew) {
+                container.insertAdjacentHTML('afterbegin', html);
+            } else {
+                container.insertAdjacentHTML('beforeend', html);
+            }
+        }
+
+        async function loadNotes() {
+            try {
+                const response = await fetch('/api/get-notes');
+                const notes = await response.json();
+                container.innerHTML = '';
+                if (!notes || notes.length === 0) {
+                    container.innerHTML = '<p style="color:#888;">No hay notitas aún. ¡Sé el primero en escribir!</p>';
+                } else {
+                    notes.forEach(note => renderNote(note.text, note.date));
+                }
+            } catch (e) {
+                container.innerHTML = 'Error al cargar las notitas.';
+                console.error(e);
+            }
+        }
+
+        async function saveNote() {
             const text = document.getElementById('noteInput').value.trim();
             if (!text) return;
 
-            const container = document.getElementById('notes-container');
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.innerText = "Guardando...";
+
             const ahora = new Date();
-            
-            // Formato de fecha para Ubuntu/Navegador
-            const opciones = { 
-                day: '2-digit', month: 'long', year: 'numeric', 
-                hour: '2-digit', minute: '2-digit' 
-            };
+            const opciones = { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
             const fechaFormateada = ahora.toLocaleDateString('es-MX', opciones);
 
-            const nuevaNotaHtml = `
-                <div class="note-item">
-                    <span class="note-date">Añadida el: ${fechaFormateada}</span>
-                    <div>${text}</div>
-                </div>`;
-            
-            container.insertAdjacentHTML('afterbegin', nuevaNotaHtml);
-            document.getElementById('noteInput').value = '';
+            try {
+                const response = await fetch('/api/save-note', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, date: fechaFormateada })
+                });
 
-            // Guardar en el navegador (LocalStorage)
-            localStorage.setItem('love_notes_full_version', container.innerHTML);
+                if (response.ok) {
+                    renderNote(text, fechaFormateada, true);
+                    document.getElementById('noteInput').value = '';
+                } else {
+                    alert("Hubo un problema al guardar en el servidor.");
+                }
+            } catch (e) {
+                alert("Error de conexión. Inténtalo de nuevo.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Notita";
+            }
         }
 
-        // CARGAR NOTAS GUARDADAS AL ABRIR
+        // INICIO
         window.onload = () => {
-            const saved = localStorage.getItem('love_notes_full_version');
-            if (saved) {
-                document.getElementById('notes-container').innerHTML = saved;
-            }
+            generateHearts();
+            loadNotes();
         };
     </script>
 </body>
