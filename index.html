@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Para Mi Amor Eterno - Adolfo & Marlen</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans:wght@300;400;600&family=Shadows+Into+Light&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-pink: #ff69b4;
@@ -226,18 +227,26 @@
     position: absolute; top: 20px; right: 30px; 
     color: white; font-size: 40px; font-weight: bold; 
 }
-        /* Carta Estilo Manuscrito */
-        .love-letter {
-            background: #fff8e1;
-            padding: 40px;
-            border-radius: 15px;
-            line-height: 1.8;
-            font-size: 1.4rem;
-            color: #5d4037;
-            text-align: left;
-            border-left: 8px solid var(--primary-pink);
-            font-family: 'Great Vibes', cursive;
-        }
+/* Carta Estilo Manuscrito Legible */
+.love-letter {
+    background: #fff8e1;
+    padding: 40px;
+    border-radius: 15px;
+    line-height: 1.6;
+    /* Cambiamos a una letra menos cursiva y más clara */
+    font-family: 'Shadows Into Light', cursive; 
+    font-size: 1.6rem; /* Aumentamos un poco el tamaño para compensar */
+    color: #5d4037;
+    text-align: left;
+    border-left: 8px solid var(--primary-pink);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.love-letter b {
+    font-family: 'Great Vibes', cursive; /* El nombre de Adolfo puede seguir elegante */
+    font-size: 2.2rem;
+    color: var(--primary-pink);
+}
 
         /* Notitas con Fecha */
         .note-item {
