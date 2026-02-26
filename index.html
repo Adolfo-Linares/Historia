@@ -492,9 +492,10 @@
             contenido += `📅 Fecha: ${note.querySelector('.note-date').innerText}\n`;
             contenido += `💌 Nota: ${note.querySelector('div').innerText}\n`;
             contenido += "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
-            contenido += "\n                                                                ❤️ Hecho con todo el amor de mi alma mi amorcito ❤️";
 
         });
+                    contenido += "\n                                                                ❤️ Hecho con todo el amor de mi alma mi amorcito ❤️";
+
         const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
