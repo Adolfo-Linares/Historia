@@ -365,177 +365,145 @@
         Hecho con todo el ❤️ por Adolfo &bull; 2021 - 2026
     </footer>
 
-    <script>
-        // 1. CONFIGURACIÓN DEL CONTADOR (01 Nov 2021)
-        const start = new Date('2021-11-01T00:00:00');
+<script>
+    // 1. CONFIGURACIÓN DEL CONTADOR
+    const start = new Date('2021-11-01T00:00:00');
 
-        function updateCountdown() {
-            const now = new Date();
-            let diff = now - start;
+    function updateCountdown() {
+        const now = new Date();
+        let diff = now - start;
+        let years = now.getFullYear() - start.getFullYear();
+        let months = (now.getMonth() - start.getMonth()) + (years * 12);
+        let totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+        
+        document.getElementById('y').innerText = Math.floor(months / 12);
+        document.getElementById('m').innerText = months % 12;
+        document.getElementById('d').innerText = totalDays % 30; 
+        document.getElementById('h').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        document.getElementById('min').innerText = Math.floor((diff / (1000 * 60)) % 60);
+        document.getElementById('s').innerText = Math.floor((diff / 1000) % 60);
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
 
-            let years = now.getFullYear() - start.getFullYear();
-            let months = (now.getMonth() - start.getMonth()) + (years * 12);
-            let totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
-            
-            document.getElementById('y').innerText = Math.floor(months / 12);
-            document.getElementById('m').innerText = months % 12;
-            document.getElementById('d').innerText = totalDays % 30; 
-            document.getElementById('h').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            document.getElementById('min').innerText = Math.floor((diff / (1000 * 60)) % 60);
-            document.getElementById('s').innerText = Math.floor((diff / 1000) % 60);
+    // 2. GENERAR CORAZONES FLOTANTES
+    function generateHearts() {
+        const bg = document.getElementById('bg-effects');
+        for (let i = 0; i < 20; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-float';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+            heart.style.animationDelay = (Math.random() * -10) + 's';
+            bg.appendChild(heart);
         }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-
-        // 2. GENERAR CORAZONES FLOTANTES
-        function generateHearts() {
-            const bg = document.getElementById('bg-effects');
-            for (let i = 0; i < 20; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'heart-float';
-                heart.innerHTML = '❤️';
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
-                heart.style.animationDelay = (Math.random() * -10) + 's';
-                bg.appendChild(heart);
-            }
-        }
-
-        // 3. LÓGICA DE NOTAS CON VERCEL KV
-        const container = document.getElementById('notes-container');
-
-        function renderNote(text, date, isNew = false) {
-            const html = `
-                <div class="note-item">
-                    <span class="note-date">${date}</span>
-                    <div>${text}</div>
-                </div>`;
-            if (isNew) {
-                container.insertAdjacentHTML('afterbegin', html);
-            } else {
-                container.insertAdjacentHTML('beforeend', html);
-            }
-        }
-
-        async function loadNotes() {
-            try {
-                const response = await fetch('/api/get-notes');
-                const notes = await response.json();
-                container.innerHTML = '';
-                if (!notes || notes.length === 0) {
-                    container.innerHTML = '<p style="color:#888;">No hay notitas aún. ¡Sé el primero en escribir!</p>';
-                } else {
-                    notes.forEach(note => renderNote(note.text, note.date));
-                }
-            } catch (e) {
-                container.innerHTML = 'Error al cargar las notitas.';
-                console.error(e);
-            }
-        }
-
-        async function saveNote() {
-            const text = document.getElementById('noteInput').value.trim();
-            if (!text) return;
-
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true;
-            btn.innerText = "Guardando...";
-
-            const ahora = new Date();
-            const opciones = { day: '2-digit', month: 'long', year: 'numeric' };
-            const fechaFormateada = ahora.toLocaleDateString('es-MX', opciones);
-
-            try {
-                const response = await fetch('/api/save-note', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, date: fechaFormateada })
-                });
-
-                if (response.ok) {
-                    renderNote(text, fechaFormateada, true);
-                    document.getElementById('noteInput').value = '';
-                } else {
-                    alert("Hubo un problema al guardar en el servidor.");
-                }
-            } catch (e) {
-                alert("Error de conexión. Inténtalo de nuevo.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Guardar Notita";
-            }
-        }
-
-        function downloadAllNotesAsText() {
-    // 1. Buscamos todas las notitas que están en pantalla
-    const notes = document.querySelectorAll('.note-item');
-    
-    if (notes.length === 0) {
-        alert("¡Aún no hay notitas para guardar, mi amor!");
-        return;
     }
 
-    // 2. Creamos el contenido del archivo
-    let contenido = "❤️ NUESTRAS NOTITAS DE AMOR ❤️\n";
-    contenido += "       Adolfo & Marlen\n";
-    contenido += "=============================\n\n";
+    // 3. LÓGICA DE NOTAS
+    const container = document.getElementById('notes-container');
 
-    notes.forEach(note => {
-        const fecha = note.querySelector('.note-date').innerText;
-        // Obtenemos solo el texto, ignorando el botón si es que pusiste uno dentro
-        const texto = note.querySelector('div').innerText; 
-        
-        contenido += `📅 Fecha: ${fecha}\n`;
-        contenido += `💌 Nota: ${texto}\n`;
-        contenido += "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
-    });
+    function renderNote(text, date, isNew = false) {
+        const html = `
+            <div class="note-item">
+                <span class="note-date">${date}</span>
+                <div>${text}</div>
+            </div>`;
+        if (isNew) container.insertAdjacentHTML('afterbegin', html);
+        else container.insertAdjacentHTML('beforeend', html);
+    }
 
-        contenido += "\n                                                                ❤️ Hecho con todo el amor de mi alma mi amorcito ❤️";
+    async function loadNotes() {
+        try {
+            const response = await fetch('/api/get-notes');
+            const notes = await response.json();
+            container.innerHTML = '';
+            if (!notes || notes.length === 0) {
+                container.innerHTML = '<p style="color:#888;">No hay notitas aún.</p>';
+            } else {
+                notes.forEach(note => renderNote(note.text, note.date));
+            }
+        } catch (e) {
+            container.innerHTML = 'Error al cargar las notitas.';
+        }
+    }
 
-    // 3. Magia para descargar el archivo en el cel
-    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    
-    link.href = url;
-    link.download = `Notitas_de_Adolfo.txt`; // Se guardará como un archivo de texto
-    
-    // Simular el clic para que el teléfono inicie la descarga
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-}
+    async function saveNote() {
+        const text = document.getElementById('noteInput').value.trim();
+        if (!text) return;
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true;
+        btn.innerText = "Guardando...";
+        const ahora = new Date();
+        const opciones = { day: '2-digit', month: 'long', year: 'numeric' };
+        const fechaFormateada = ahora.toLocaleDateString('es-MX', opciones);
 
-// 1. LISTA DE FOTOS: Solo añade el nombre aquí y aparecerán solas
-const misFotos = [
-    "fotos/WhatsApp Image 2026-02-24 at 2.20.24 PM (1).png",
-    "fotos/WhatsApp Image 2026-02-24 at 2.20.24 PM.png",
-    "fotos/WhatsApp Image 2026-02-24 at 2.20.25 PM (1).png",
-    "fotos/WhatsApp Image 2026-02-24 at 2.20.25 PM.png"
-];
+        try {
+            const response = await fetch('/api/save-note', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, date: fechaFormateada })
+            });
+            if (response.ok) {
+                renderNote(text, fechaFormateada, true);
+                document.getElementById('noteInput').value = '';
+            }
+        } catch (e) {
+            alert("Error de conexión.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Guardar Notita";
+        }
+    }
 
-// 2. FUNCIÓN PARA LLENAR EL CARRUSEL
-window.onload = () => {
-    generateHearts();
-    loadNotes();
-    cargarGaleria(); // Ahora sí se ejecutará siempre
-};
+    // 4. LÓGICA DE GALERÍA (LA QUE FALTABA)
+    const misFotos = [
+        "fotos/WhatsApp Image 2026-02-24 at 2.20.24 PM (1).png",
+        "fotos/WhatsApp Image 2026-02-24 at 2.20.24 PM.png",
+        "fotos/WhatsApp Image 2026-02-24 at 2.20.25 PM (1).png",
+        "fotos/WhatsApp Image 2026-02-24 at 2.20.25 PM.png"
+    ];
 
-// 3. LLAMAR A LA FUNCIÓN AL CARGAR LA PÁGINA
-// Busca tu window.onload y añade: cargarGaleria();
-window.onload = () => {
-    generateHearts();
-    loadNotes();
-    cargarGaleria(); // <--- Añade esto
-};
+    function cargarGaleria() {
+        const galeria = document.getElementById('gallery-container');
+        if (!galeria) return;
+        galeria.innerHTML = ''; // Limpiar antes de cargar
+        misFotos.forEach(foto => {
+            const item = document.createElement('div');
+            item.className = 'carousel-item';
+            item.onclick = () => {
+                document.getElementById('lightbox-img').src = foto;
+                document.getElementById('lightbox').style.display = 'flex';
+            };
+            item.innerHTML = `<img src="${foto}" alt="Nuestro Momento" onerror="this.parentElement.style.display='none'">`;
+            galeria.appendChild(item);
+        });
+    }
 
-        // INICIO
-        window.onload = () => {
-            generateHearts();
-            loadNotes();
-        };
-    </script>
+    // 5. FUNCIÓN DE DESCARGA
+    function downloadAllNotesAsText() {
+        const notes = document.querySelectorAll('.note-item');
+        if (notes.length === 0) { alert("No hay notitas."); return; }
+        let contenido = "❤️ NUESTRAS NOTITAS DE AMOR ❤️\n\n";
+        notes.forEach(note => {
+            contenido += `📅 Fecha: ${note.querySelector('.note-date').innerText}\n`;
+            contenido += `💌 Nota: ${note.querySelector('div').innerText}\n`;
+            contenido += "-----------------------------\n";
+        });
+        const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `Notitas_de_Adolfo.txt`;
+        link.click();
+    }
+
+    // 6. INICIO ÚNICO (ESTO ARREGLA EL CONFLICTO)
+    window.onload = () => {
+        generateHearts();
+        loadNotes();
+        cargarGaleria();
+    };
+</script>
 </body>
 </html>
