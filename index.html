@@ -538,20 +538,11 @@ const misFotos = [
 ];
 
 // 2. FUNCIÓN PARA LLENAR EL CARRUSEL
-function cargarGaleria() {
-    const galeria = document.getElementById('gallery-container');
-    misFotos.forEach(foto => {
-        const item = document.createElement('div');
-        item.className = 'carousel-item';
-        // Al hacer click, llama a la función de pantalla completa
-        item.onclick = () => {
-            document.getElementById('lightbox-img').src = foto;
-            document.getElementById('lightbox').style.display = 'flex';
-        };
-        item.innerHTML = `<img src="${foto}" alt="Nuestro Momento">`;
-        galeria.appendChild(item);
-    });
-}
+window.onload = () => {
+    generateHearts();
+    loadNotes();
+    cargarGaleria(); // Ahora sí se ejecutará siempre
+};
 
 // 3. LLAMAR A LA FUNCIÓN AL CARGAR LA PÁGINA
 // Busca tu window.onload y añade: cargarGaleria();
