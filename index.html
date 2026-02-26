@@ -327,7 +327,7 @@
             <div id="notes-container">Cargando nuestras notitas...</div>
             <textarea id="noteInput" rows="3" placeholder="Escribe algo lindo hoy..."></textarea>
             <button id="saveBtn" onclick="saveNote()">Guardar Notita</button>
-<button id="downloadAllBtn" onclick="downloadAllNotesAsText()" style="background: var(--secondary-yellow); color: #5d4037; display: block; width: 100%; margin-top: 10px;">
+            <button id="downloadAllBtn" onclick="downloadAllNotesAsText()" style="background: var(--secondary-yellow); color: #5d4037; display: block; width: 100%; margin-top: 10px;">
     📥 Guardar mis notitas en el teléfono
 </button>
         </div>
@@ -449,8 +449,7 @@
     }
 
     // 2. Creamos el contenido del archivo
-    contenido += "=============================\n\n";
-    let contenido = "❤️ NUESTRAS NOTITAS DE AMOR ❤️\n";
+    let contenido = "💖 NUESTRAS NOTITAS DE AMOR 💖\n";
     contenido += "Adolfo & Marlen\n";
     contenido += "=============================\n\n";
 
@@ -461,10 +460,10 @@
         
         contenido += `📅 Fecha: ${fecha}\n`;
         contenido += `💌 Nota: ${texto}\n`;
-        contenido += "--------------------------------------------------------------------------------------------------------------------\n";
+        contenido += "-----------------------------\n";
     });
 
-    contenido += "\n❤️ Hecho con todo el amor de su alma por Adolfo ❤️.";
+    contenido += "\nHecho con mucho amor por Adolfo.";
 
     // 3. Magia para descargar el archivo en el cel
     const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
