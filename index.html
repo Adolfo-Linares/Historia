@@ -259,6 +259,8 @@
             transform: scale(1.05);
         }
 
+        
+
         footer {
             padding: 40px;
             font-size: 0.9rem;
@@ -325,6 +327,9 @@
             <div id="notes-container">Cargando nuestras notitas...</div>
             <textarea id="noteInput" rows="3" placeholder="Escribe algo lindo hoy..."></textarea>
             <button id="saveBtn" onclick="saveNote()">Guardar Notita</button>
+<button id="downloadAllBtn" onclick="downloadAllNotesAsText()" style="background: var(--secondary-yellow); color: #5d4037; display: block; width: 100%; margin-top: 10px;">
+    📥 Guardar mis notitas en el teléfono
+</button>
         </div>
     </div>
 
@@ -433,6 +438,47 @@
                 btn.innerText = "Guardar Notita";
             }
         }
+
+        function downloadAllNotesAsText() {
+    // 1. Buscamos todas las notitas que están en pantalla
+    const notes = document.querySelectorAll('.note-item');
+    
+    if (notes.length === 0) {
+        alert("¡Aún no hay notitas para guardar, mi amor!");
+        return;
+    }
+
+    // 2. Creamos el contenido del archivo
+    let contenido = "💖 NUESTRAS NOTITAS DE AMOR 💖\n";
+    contenido += "Adolfo & Marlen\n";
+    contenido += "=============================\n\n";
+
+    notes.forEach(note => {
+        const fecha = note.querySelector('.note-date').innerText;
+        // Obtenemos solo el texto, ignorando el botón si es que pusiste uno dentro
+        const texto = note.querySelector('div').innerText; 
+        
+        contenido += `📅 Fecha: ${fecha}\n`;
+        contenido += `💌 Nota: ${texto}\n`;
+        contenido += "-----------------------------\n";
+    });
+
+    contenido += "\nHecho con mucho amor por Adolfo.";
+
+    // 3. Magia para descargar el archivo en el cel
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    link.href = url;
+    link.download = `Notitas_de_Adolfo.txt`; // Se guardará como un archivo de texto
+    
+    // Simular el clic para que el teléfono inicie la descarga
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
 
         // INICIO
         window.onload = () => {
