@@ -31,6 +31,8 @@
             min-height: 100vh;
         }
 
+        
+        
         /* Corazones y destellos de fondo animadores */
         .background-effect {
             position: fixed;
@@ -177,27 +179,53 @@
             top: 0; left: 0; width: 100%; height: 100%;
         }
 
-        /* Galería de Fotos */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }
+/* --- NUEVO: Diseño de Carrusel Horizontal --- */
+.carousel-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 5px;
+    scroll-snap-type: x mandatory; /* Hace que las fotos se detengan justo al centro */
+    scrollbar-width: none; /* Oculta el scroll en Firefox */
+}
+.carousel-container::-webkit-scrollbar { display: none; } /* Oculta el scroll en Chrome/Safari */
 
-        .gallery img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 15px;
-            border: 3px solid white;
-            transition: 0.3s;
-        }
+.carousel-item {
+    flex: 0 0 85%; /* Tamaño de la foto en pantalla (85% del ancho) */
+    scroll-snap-align: center;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 4px solid white;
+    height: 350px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
 
-        .gallery img:hover {
-            transform: scale(1.05) rotate(2deg);
-            border-color: var(--secondary-yellow);
-        }
-
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* --- NUEVO: Estilos para Pantalla Completa --- */
+#lightbox {
+    display: none; /* Escondido por defecto */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+#lightbox img { 
+    max-width: 90%; 
+    max-height: 80%; 
+    border-radius: 10px; 
+    border: 3px solid white; 
+}
+#lightbox .close { 
+    position: absolute; top: 20px; right: 30px; 
+    color: white; font-size: 40px; font-weight: bold; 
+}
         /* Carta Estilo Manuscrito */
         .love-letter {
             background: #fff8e1;
@@ -274,7 +302,10 @@
     </style>
 </head>
 <body>
-
+<div id="lightbox" onclick="this.style.display='none'">
+    <span class="close">&times;</span>
+    <img id="lightbox-img" src="">
+</div>
     <div class="background-effect" id="bg-effects"></div>
 
     <header>
@@ -305,12 +336,9 @@
 
         <div class="card">
             <h2>Nuestros Momentos</h2>
-            <div class="gallery">
-                <img src="WhatsApp Image 2026-02-24 at 2.20.24 PM (1).png" alt="Recuerdo 1">
-                <img src="WhatsApp Image 2026-02-24 at 2.20.24 PM.png" alt="Recuerdo 2">
-                <img src="WhatsApp Image 2026-02-24 at 2.20.25 PM (1).png" alt="Recuerdo 3">
-                <img src="WhatsApp Image 2026-02-24 at 2.20.25 PM.png" alt="Recuerdo 4">
-            </div>
+    <div class="carousel-container" id="gallery-container">
+        </div>
+    <p style="color: #999; font-size: 0.8rem; margin-top: 10px;">⬅️ Desliza para ver más ➡️</p>
         </div>
 
         <div class="card">
@@ -479,6 +507,38 @@
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 }
+
+// 1. LISTA DE FOTOS: Solo añade el nombre aquí y aparecerán solas
+const misFotos = [
+    "WhatsApp Image 2026-02-24 at 2.20.24 PM (1).png",
+    "WhatsApp Image 2026-02-24 at 2.20.24 PM.png",
+    "WhatsApp Image 2026-02-24 at 2.20.25 PM (1).png",
+    "WhatsApp Image 2026-02-24 at 2.20.25 PM.png"
+];
+
+// 2. FUNCIÓN PARA LLENAR EL CARRUSEL
+function cargarGaleria() {
+    const galeria = document.getElementById('gallery-container');
+    misFotos.forEach(foto => {
+        const item = document.createElement('div');
+        item.className = 'carousel-item';
+        // Al hacer click, llama a la función de pantalla completa
+        item.onclick = () => {
+            document.getElementById('lightbox-img').src = foto;
+            document.getElementById('lightbox').style.display = 'flex';
+        };
+        item.innerHTML = `<img src="${foto}" alt="Nuestro Momento">`;
+        galeria.appendChild(item);
+    });
+}
+
+// 3. LLAMAR A LA FUNCIÓN AL CARGAR LA PÁGINA
+// Busca tu window.onload y añade: cargarGaleria();
+window.onload = () => {
+    generateHearts();
+    loadNotes();
+    cargarGaleria(); // <--- Añade esto
+};
 
         // INICIO
         window.onload = () => {
