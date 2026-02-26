@@ -486,10 +486,14 @@
         const notes = document.querySelectorAll('.note-item');
         if (notes.length === 0) { alert("No hay notitas."); return; }
         let contenido = "❤️ NUESTRAS NOTITAS DE AMOR ❤️\n\n";
+            contenido += "       Adolfo & Marlen\n";
+            contenido += "=============================\n\n";
         notes.forEach(note => {
             contenido += `📅 Fecha: ${note.querySelector('.note-date').innerText}\n`;
             contenido += `💌 Nota: ${note.querySelector('div').innerText}\n`;
-            contenido += "-----------------------------\n";
+            contenido += "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
+            contenido += "\n                                                                ❤️ Hecho con todo el amor de mi alma mi amorcito ❤️";
+
         });
         const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
