@@ -351,7 +351,7 @@
 <div class="container">
 
     <div class="card">
-        <h2>Tiempo Amándote <span class="heart-deco">💗</span></h2>
+        <h2>Tiempo Amándote <span class="heart-deco">❤️</span></h2>
         <div id="countdown">
             <div class="time-unit"><span id="y">0</span><label>Años</label></div>
             <div class="time-unit"><span id="m">0</span><label>Meses</label></div>
@@ -377,9 +377,9 @@
 
     <!-- TABLERO DE CITAS -->
     <div class="card">
-        <h2>Nuestras Citas <span class="heart-deco">🌹</span></h2>
+        <h2>Nuestras Citas <span class="heart-deco">❤️</span></h2>
         <p style="text-align:center;color:#b0789b;font-size:0.9rem;margin-top:-18px;margin-bottom:22px;font-style:italic;">
-            Toca una categoría para ver o agregar recuerdos 💕 ¡Puedes tener todas las visitas que quieras!
+            Toca una categoría para ver o agregar recuerdos ❤️ ¡Puedes tener todas las visitas que quieras!
         </p>
         <div class="dates-board">
             <div class="dates-grid" id="dates-grid"></div>
@@ -510,7 +510,7 @@ function openCategoryModal(id) {
     document.getElementById('modal-title').textContent = cita.name;
     document.getElementById('modal-subtitle').textContent =
         entries.length === 0 ? 'Aún sin visitas guardadas' :
-        entries.length === 1 ? '1 vez juntos 💕' : `${entries.length} veces juntos 💕`;
+        entries.length === 1 ? '1 vez juntos ❤️' : `${entries.length} veces juntos ❤️`;
 
     renderEntries(entries);
     document.getElementById('date-modal').style.display = 'flex';
@@ -519,7 +519,7 @@ function openCategoryModal(id) {
 function renderEntries(entries) {
     const list = document.getElementById('entries-list');
     if (!entries || entries.length===0) {
-        list.innerHTML = '<div class="empty-state">Aún no han ido juntos aquí 🌸<br>¡Agreguen su primer recuerdo!</div>';
+        list.innerHTML = '<div class="empty-state">Aún no han ido juntos aquí ❤️<br>¡Agreguen su primer recuerdo!</div>';
         return;
     }
     list.innerHTML = '';
@@ -570,7 +570,7 @@ function updateTile(id, count) {
 function openEntryForm() {
     const cita = citasData.find(c=>c.id===currentCatId);
     document.getElementById('entry-modal-title').textContent = 'Nueva visita — ' + cita.name;
-    document.getElementById('entry-modal-sub').textContent   = cita.icon + ' Agrega el recuerdo de este día 💕';
+    document.getElementById('entry-modal-sub').textContent   = cita.icon + ' Agrega el recuerdo de este día ❤️';
     // limpiar
     document.getElementById('entry-date').value='';
     document.getElementById('entry-desc').value='';
@@ -595,7 +595,7 @@ function saveEntry() {
     const desc    = document.getElementById('entry-desc').value.trim();
     const photo   = document.getElementById('entry-preview').src||'';
     if (!desc && !dateVal && !photo.startsWith('data:')) {
-        alert('Por favor agrega al menos una fecha o descripción 💕'); return;
+        alert('Por favor agrega al menos una fecha o descripción ❤️'); return;
     }
     const stored = loadStorage();
     if(!stored[currentCatId]) stored[currentCatId]=[];
@@ -613,7 +613,7 @@ function saveEntry() {
 // ===== NOTAS =====
 const notesContainer = document.getElementById('notes-container');
 function renderNote(text,date,isNew=false){ const html=`<div class="note-item"><span class="note-date">📅 ${date}</span><div>💌 ${text}</div></div>`; if(isNew) notesContainer.insertAdjacentHTML('afterbegin',html); else notesContainer.insertAdjacentHTML('beforeend',html); }
-async function loadNotes(){ try{ const res=await fetch('/api/get-notes'); const notes=await res.json(); notesContainer.innerHTML=''; if(!notes||notes.length===0) notesContainer.innerHTML='<p style="color:#b0789b;text-align:center;">No hay notitas aún... ¡sé el primero! 🌸</p>'; else notes.forEach(n=>renderNote(n.text,n.date)); }catch(e){ notesContainer.innerHTML='<p style="color:#b0789b;text-align:center;">Escribe tu primera notita de amor 💕</p>'; } }
+async function loadNotes(){ try{ const res=await fetch('/api/get-notes'); const notes=await res.json(); notesContainer.innerHTML=''; if(!notes||notes.length===0) notesContainer.innerHTML='<p style="color:#b0789b;text-align:center;">No hay notitas aún... ¡sé el primero! ❤️</p>'; else notes.forEach(n=>renderNote(n.text,n.date)); }catch(e){ notesContainer.innerHTML='<p style="color:#b0789b;text-align:center;">Escribe tu primera notita de amor ❤️</p>'; } }
 async function saveNote(){ const text=document.getElementById('noteInput').value.trim(); if(!text) return; const btn=document.getElementById('saveBtn'); btn.disabled=true; btn.innerText="Guardando..."; const fecha=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}); try{ const res=await fetch('/api/save-note',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,date:fecha})}); if(res.ok){renderNote(text,fecha,true);document.getElementById('noteInput').value='';} }catch(e){renderNote(text,fecha,true);document.getElementById('noteInput').value='';} finally{btn.disabled=false;btn.innerText="💾 Guardar Notita";} }
 function downloadAllNotesAsText(){ const notes=document.querySelectorAll('.note-item'); if(!notes.length){alert("No hay notitas aún.");return;} let txt="❤️ NUESTRAS NOTITAS DE AMOR ❤️\n       Adolfo & Marlen\n"+"=".repeat(35)+"\n\n"; notes.forEach(n=>{txt+=`📅 ${n.querySelector('.note-date').innerText}\n${n.querySelector('div').innerText}\n`+"-".repeat(50)+"\n";}); txt+="\n❤️ Hecho con todo el amor de mi alma ❤️"; const blob=new Blob([txt],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Notitas_de_Adolfo.txt'; a.click(); }
 
