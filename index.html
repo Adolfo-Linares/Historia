@@ -590,24 +590,57 @@ function previewEntryPhoto(input) {
     reader.readAsDataURL(input.files[0]);
 }
 
-function saveEntry() {
+async function saveEntry() {
     const dateVal = document.getElementById('entry-date').value;
     const desc    = document.getElementById('entry-desc').value.trim();
-    const photo   = document.getElementById('entry-preview').src||'';
-    if (!desc && !dateVal && !photo.startsWith('data:')) {
-        alert('Por favor agrega al menos una fecha o descripción ❤️'); return;
+    const photoBase64 = document.getElementById('entry-preview').src || '';
+    
+    // 1. Validación inicial
+    if (!desc && !dateVal && !photoBase64.startsWith('data:')) {
+        alert('Por favor agrega al menos una fecha o descripción ❤️'); 
+        return;
     }
+
+    let uploadedPhoto = '';
+
+    // 2. Proceso de subida de imagen al servidor
+    if (photoBase64.startsWith('data:')) {
+        try {
+            const uploadRes = await fetch('/api/upload-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    image: photoBase64
+                })
+            });
+
+            const uploadData = await uploadRes.json();
+            uploadedPhoto = uploadData.url; // Obtenemos la URL de la imagen subida
+        } catch (error) {
+            console.error("Error subiendo la imagen:", error);
+            alert("Hubo un problema al guardar la imagen.");
+            return;
+        }
+    }
+
+    // 3. Guardado en LocalStorage con la nueva URL
     const stored = loadStorage();
-    if(!stored[currentCatId]) stored[currentCatId]=[];
+    if(!stored[currentCatId]) stored[currentCatId] = [];
+    
     stored[currentCatId].push({
-        date:  dateVal ? new Date(dateVal+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}) : '',
+        date: dateVal ? new Date(dateVal+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}) : '',
         desc,
-        photo: photo.startsWith('data:') ? photo : ''
+        photo: uploadedPhoto // Guardamos la URL del servidor, no el Base64 gigante
     });
+
     saveStorage(stored);
+    
+    // 4. Interfaz
     updateTile(currentCatId, stored[currentCatId].length);
     closeEntryForm();
-    openCategoryModal(currentCatId); // refrescar lista
+    openCategoryModal(currentCatId); 
 }
 
 // ===== NOTAS =====
