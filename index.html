@@ -481,21 +481,36 @@ const citasData = [
 ];
 
 // Storage: cada categoría guarda un ARRAY de entradas
-function loadStorage() { try { return JSON.parse(localStorage.getItem('citas_v2')||'{}'); } catch(e){ return {}; } }
-function saveStorage(d) { localStorage.setItem('citas_v2', JSON.stringify(d)); }
+let citasStorage = {};
+
+async function loadStorage() {
+    try {
+        const res = await fetch('/api/get-entries');
+        citasStorage = await res.json();
+        return citasStorage || {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function getStorage() {
+    return citasStorage || {};
+}
 
 let currentCatId = null;
 
-function buildDatesGrid() {
+async function buildDatesGrid() {
     const grid = document.getElementById('dates-grid');
-    const stored = loadStorage(); grid.innerHTML='';
+    const stored = await loadStorage();
+    grid.innerHTML = '';
+
     citasData.forEach(c => {
         const entries = stored[c.id] || [];
         const tile = document.createElement('div');
-        tile.className = 'date-tile' + (entries.length>0 ? ' has-entries' : '');
-        tile.id = 'tile-'+c.id;
+        tile.className = 'date-tile' + (entries.length > 0 ? ' has-entries' : '');
+        tile.id = 'tile-' + c.id;
         tile.onclick = () => openCategoryModal(c.id);
-        tile.innerHTML = `<span class="tile-badge">${entries.length > 0 ? entries.length+'x' : ''}</span><span class="tile-icon">${c.icon}</span><span class="tile-name">${c.name}</span>`;
+        tile.innerHTML = `<span class="tile-badge">${entries.length > 0 ? entries.length + 'x' : ''}</span><span class="tile-icon">${c.icon}</span><span class="tile-name">${c.name}</span>`;
         grid.appendChild(tile);
     });
 }
@@ -503,7 +518,7 @@ function buildDatesGrid() {
 function openCategoryModal(id) {
     currentCatId = id;
     const cita = citasData.find(c=>c.id===id);
-    const stored = loadStorage();
+    const stored = getStorage();
     const entries = stored[id] || [];
 
     document.getElementById('modal-icon').textContent  = cita.icon;
@@ -550,7 +565,7 @@ document.getElementById('date-modal').addEventListener('click',function(e){ if(e
 
 function deleteEntry(idx) {
     if(!confirm('¿Eliminar este recuerdo?')) return;
-    const stored = loadStorage();
+    const stored = getStorage();
     const entries = stored[currentCatId] || [];
     entries.splice(idx,1);
     stored[currentCatId] = entries;
@@ -592,55 +607,62 @@ function previewEntryPhoto(input) {
 
 async function saveEntry() {
     const dateVal = document.getElementById('entry-date').value;
-    const desc    = document.getElementById('entry-desc').value.trim();
+    const desc = document.getElementById('entry-desc').value.trim();
     const photoBase64 = document.getElementById('entry-preview').src || '';
-    
-    // 1. Validación inicial
+
     if (!desc && !dateVal && !photoBase64.startsWith('data:')) {
-        alert('Por favor agrega al menos una fecha o descripción ❤️'); 
+        alert('Por favor agrega al menos una fecha, descripción o foto ❤️');
         return;
     }
 
     let uploadedPhoto = '';
 
-    // 2. Proceso de subida de imagen al servidor
     if (photoBase64.startsWith('data:')) {
-        try {
-            const uploadRes = await fetch('/api/upload-image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    image: photoBase64
-                })
-            });
+        const uploadRes = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: photoBase64 })
+        });
 
-            const uploadData = await uploadRes.json();
-            uploadedPhoto = uploadData.url; // Obtenemos la URL de la imagen subida
-        } catch (error) {
-            console.error("Error subiendo la imagen:", error);
-            alert("Hubo un problema al guardar la imagen.");
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+            alert('Error al subir imagen: ' + (uploadData.error || 'desconocido'));
             return;
         }
+
+        uploadedPhoto = uploadData.url;
     }
 
-    // 3. Guardado en LocalStorage con la nueva URL
-    const stored = loadStorage();
-    if(!stored[currentCatId]) stored[currentCatId] = [];
-    
-    stored[currentCatId].push({
-        date: dateVal ? new Date(dateVal+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}) : '',
+    const entry = {
+        date: dateVal ? new Date(dateVal + 'T12:00:00').toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }) : '',
         desc,
-        photo: uploadedPhoto // Guardamos la URL del servidor, no el Base64 gigante
+        photo: uploadedPhoto
+    };
+
+    const res = await fetch('/api/save-entry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            categoryId: currentCatId,
+            entry
+        })
     });
 
-    saveStorage(stored);
-    
-    // 4. Interfaz
-    updateTile(currentCatId, stored[currentCatId].length);
+    if (!res.ok) {
+        alert('Error al guardar recuerdo en la BD');
+        return;
+    }
+
+    await buildDatesGrid();
+    await loadStorage();
+
     closeEntryForm();
-    openCategoryModal(currentCatId); 
+    openCategoryModal(currentCatId);
 }
 
 // ===== NOTAS =====
