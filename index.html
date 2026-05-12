@@ -563,17 +563,18 @@ function closeModal() {
 }
 document.getElementById('date-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 
-function deleteEntry(idx) {
-    if(!confirm('¿Eliminar este recuerdo?')) return;
-    const stored = getStorage();
-    const entries = stored[currentCatId] || [];
-    entries.splice(idx,1);
-    stored[currentCatId] = entries;
-    saveStorage(stored);
-    updateTile(currentCatId, entries.length);
-    openCategoryModal(currentCatId); // refrescar
-}
+async function eliminarEntrada(id) {
 
+  await fetch("/api/delete-entry", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id })
+  });
+
+  cargarEntradas();
+}
 function updateTile(id, count) {
     const tile = document.getElementById('tile-'+id);
     if(!tile) return;
