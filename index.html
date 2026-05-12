@@ -307,21 +307,16 @@ font-style: italic; font-size: 1.5rem; color: #5d2a3e; text-align: left; line-he
 }
 
 .note-date {
+    font-family: 'Lora', serif;
+    font-style: italic;
     font-weight: 600;
     color: var(--rose);
-    font-size: 0.82rem;
+    font-size: 0.95rem;
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
     letter-spacing: 0.04em;
 }
-
-.note-item div {
-    font-family: 'Shadows Into Light', cursive;
-    font-size: 1.25rem;
-    color: #5d2a3e;
-    line-height: 1.5;
-}
-
+.note-item div 
 .notes-calendar-head {
     display: flex;
     justify-content: space-between;
@@ -719,19 +714,16 @@ function cargarGaleria() {
 const citasData = [
     {id:'cine',        icon:'🎬', name:'Cita en el Cine'},
     {id:'restaurante', icon:'🍽️', name:'Cena Romántica'},
-    {id:'restaurantecomida', icon:'🍽️', name:'Comida Romántica'},
     {id:'parque',      icon:'🌳', name:'Paseo de Pareja'},
     {id:'playa',       icon:'🏖️', name:'Día en la Playa'},
-    {id:'baile',       icon:'💃', name:'Noche de Baile'},
     {id:'viaje',       icon:'✈️', name:'Nuestro Viaje'},
     {id:'concierto',   icon:'🎶', name:'Concierto Juntos'},
-    {id:'helado',      icon:'🍦', name:'Salida de Helados'},
-    {id:'cumple',      icon:'🎂', name:'Cumpleaños'},
+    {id:'cumple',      icon:'🎂', name:'Cumpleaños juntos'},
     {id:'aniversario', icon:'💍', name:'Nuestro Aniversario'},
     {id:'mercado',     icon:'🛍️', name:'Día de Compras'},
-    {id:'casa',        icon:'🏠', name:'Noche en Casa'},
-    {id:'fotos',       icon:'📸', name:'Sesión de Fotos'},
-    {id:'cafe',        icon:'☕', name:'Tarde de Café'},
+    {id:'casa',        icon:'🏠', name:'Noche o tarde en Casa'},
+    {id:'fotos',       icon:'📸', name:'Fotos haciendo deporte'},
+    {id:'cafe',        icon:'☕', name:'Tarde o noche de Café'},
     {id:'noche',       icon:'🌙', name:'Noche Estrellada'},
     {id:'sorpresa',    icon:'🎁', name:'Sorpresa Especial'},
 ];
