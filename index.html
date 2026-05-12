@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Mi Amor Eterno - Adolfo & Marlen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lora:ital,wght@0,400;0,600;1,400&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink: #ff69b4;
+            --rose: #e91e8c;
+            --gold: #ffd700;
+            --deep: #c2185b;
+            --card: rgba(255,255,255,0.96);
+            --text: #3d1a2e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Lora', serif;
+            background: linear-gradient(160deg, #fff0f5 0%, #fce4ec 50%, #fff8e1 100%);
+            color: var(--text); overflow-x: hidden; min-height: 100vh;
+        }
+
+        /* LLUVIA */
+        #heart-rain { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+        .rain-heart { position: absolute; top: -60px; animation: fall linear infinite; opacity: 0; user-select: none; }
+        @keyframes fall {
+            0%   { transform: translateY(-60px) rotate(0deg) scale(0.6); opacity: 0; }
+            10%  { opacity: 0.85; }
+            90%  { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(360deg) scale(1.1); opacity: 0; }
+        }
+        .bg-heart { position: fixed; pointer-events: none; z-index: 0; opacity: 0.12; animation: floatUp linear infinite; }
+        @keyframes floatUp {
+            0%   { transform: translateY(105vh) scale(0.5) rotate(0deg); opacity: 0; }
+            20%  { opacity: 0.15; } 80% { opacity: 0.1; }
+            100% { transform: translateY(-15vh) scale(1.2) rotate(25deg); opacity: 0; }
+        }
+
+        /* HEADER */
+        header {
+            position: relative;
+            background: linear-gradient(135deg, #ff80ab 0%, #ff1a75 40%, #c2185b 70%, #ffd740 100%);
+            padding: 90px 20px 80px; clip-path: polygon(0 0,100% 0,100% 88%,50% 100%,0 88%);
+            text-align: center; box-shadow: 0 10px 40px rgba(194,24,91,0.3); z-index: 1;
+        }
+        header::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ctext y='40' font-size='30' opacity='0.07'%3E❤%3C/text%3E%3C/svg%3E"); pointer-events: none; }
+        h1 { font-family: 'Great Vibes', cursive; font-size: clamp(3.5rem,10vw,6rem); color: white; text-shadow: 2px 4px 12px rgba(0,0,0,0.25),0 0 40px rgba(255,210,0,0.4); margin-bottom: 12px; animation: titleGlow 3s ease-in-out infinite alternate; }
+        @keyframes titleGlow {
+            from { text-shadow: 2px 4px 12px rgba(0,0,0,0.25),0 0 20px rgba(255,210,0,0.3); }
+            to   { text-shadow: 2px 4px 12px rgba(0,0,0,0.25),0 0 50px rgba(255,210,0,0.7),0 0 80px rgba(255,105,180,0.4); }
+        }
+        header .subtitle { color: rgba(255,255,255,0.95); font-size: 1.25rem; font-style: italic; letter-spacing: 0.05em; margin-bottom: 6px; }
+        header .date-sub  { color: rgba(255,255,255,0.8); font-size: 1rem; }
+
+        /* MÚSICA */
+        #music-player {
+            position: fixed; bottom: 25px; right: 25px; z-index: 1000;
+            background: linear-gradient(135deg, var(--rose), var(--deep));
+            border-radius: 50px; padding: 12px 22px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 8px 30px rgba(233,30,140,0.5); cursor: pointer;
+            transition: transform 0.3s,box-shadow 0.3s; color: white; font-size: 0.85rem; font-family: 'Lora',serif;
+        }
+        #music-player:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 12px 40px rgba(233,30,140,0.6); }
+        #music-player .note-icon { font-size: 1.4rem; animation: spin 3s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #music-player.paused .note-icon { animation-play-state: paused; }
+
+        /* CONTAINER / CARDS */
+        .container { max-width: 960px; margin: -20px auto 60px; padding: 0 18px; position: relative; z-index: 1; }
+        .card { background: var(--card); border-radius: 28px; padding: 40px 35px; margin-bottom: 30px; box-shadow: 0 12px 40px rgba(194,24,91,0.08); border: 2px solid rgba(255,105,180,0.2); transition: transform 0.4s,box-shadow 0.4s; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; height: 4px; background: linear-gradient(90deg,var(--pink),var(--gold),var(--rose)); border-radius: 28px 28px 0 0; }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(194,24,91,0.13); }
+        h2 { font-family: 'Great Vibes', cursive; font-size: clamp(2.5rem,6vw,3.8rem); color: var(--rose); margin-bottom: 28px; text-align: center; }
+        h2 .heart-deco { font-style: normal; font-size: 1.4rem; vertical-align: middle; }
+
+        /* CONTADOR */
+        #countdown { display: grid; grid-template-columns: repeat(auto-fit,minmax(100px,1fr)); gap: 16px; }
+        .time-unit { background: linear-gradient(135deg,#fff5f8,#fff0f5); padding: 22px 12px; border-radius: 18px; border: 1.5px solid rgba(255,105,180,0.25); box-shadow: 0 4px 15px rgba(255,105,180,0.1); animation: heartbeat 1.4s ease-in-out infinite alternate; text-align: center; }
+        @keyframes heartbeat { from { transform: scale(1); } to { transform: scale(1.04); } }
+        .time-unit span { display: block; font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 700; color: var(--rose); font-family: 'Great Vibes',cursive; }
+        .time-unit label { font-size: 0.78rem; color: #b0789b; text-transform: uppercase; letter-spacing: 0.08em; }
+
+        /* VIDEO */
+        .video-box { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 18px; overflow: hidden; border: 4px solid var(--pink); box-shadow: 0 8px 30px rgba(255,105,180,0.3); }
+        .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* GALERÍA */
+        .carousel-container { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px 15px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+        .carousel-container::-webkit-scrollbar { display: none; }
+        .carousel-item { flex: 0 0 82%; scroll-snap-align: center; border-radius: 22px; overflow: hidden; border: 3px solid rgba(255,105,180,0.3); box-shadow: 0 8px 25px rgba(194,24,91,0.12); background: white; cursor: pointer; transition: transform 0.3s,box-shadow 0.3s; }
+        .carousel-item:hover { transform: scale(1.02); box-shadow: 0 14px 40px rgba(194,24,91,0.22); }
+        .carousel-item img { width: 100%; height: 300px; object-fit: cover; display: block; }
+        .photo-caption { padding: 16px 18px; text-align: center; background: linear-gradient(to bottom,#fff5f8,#fff0f5); border-top: 2px dashed rgba(255,105,180,0.25); }
+        .photo-caption p { font-family: 'Shadows Into Light',cursive; font-size: 1.25rem; color: var(--deep); line-height: 1.5; }
+
+        /* LIGHTBOX */
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(10,0,20,0.92); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(6px); }
+        #lightbox img { max-width: 90%; max-height: 80vh; border-radius: 16px; border: 3px solid rgba(255,105,180,0.5); box-shadow: 0 0 60px rgba(255,105,180,0.3); }
+        #lightbox .close { position: absolute; top: 20px; right: 30px; color: white; font-size: 42px; cursor: pointer; transition: transform 0.2s; line-height: 1; }
+        #lightbox .close:hover { transform: rotate(90deg) scale(1.2); }
+
+        /* ===== TABLERO DE CITAS ===== */
+        .dates-board {
+            background: linear-gradient(135deg,#fff0f8,#fef0ff,#fff8e1);
+            border-radius: 22px; padding: 28px 22px;
+            border: 2.5px dashed rgba(233,30,140,0.22);
+            box-shadow: inset 0 0 30px rgba(255,105,180,0.06);
+            position: relative;
+        }
+        .dates-board::before,.dates-board::after { content: '📌'; position: absolute; font-size: 1.4rem; top: -12px; }
+        .dates-board::before { left: 20px; transform: rotate(-15deg); }
+        .dates-board::after  { right: 20px; transform: rotate(15deg); }
+
+        .dates-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 14px; }
+
+        /* Tarjeta de categoría */
+        .date-tile {
+            background: white; border-radius: 18px; padding: 18px 10px 14px;
+            text-align: center; cursor: pointer;
+            border: 2px solid rgba(255,105,180,0.18);
+            box-shadow: 0 4px 14px rgba(194,24,91,0.08);
+            transition: transform 0.28s,box-shadow 0.28s,border-color 0.28s;
+            position: relative; overflow: hidden;
+        }
+        .date-tile::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,rgba(255,105,180,0.07),rgba(255,215,0,0.07)); opacity: 0; transition: opacity 0.3s; }
+        .date-tile:hover { transform: translateY(-7px) scale(1.05); box-shadow: 0 14px 30px rgba(194,24,91,0.18); border-color: var(--rose); }
+        .date-tile:hover::before { opacity: 1; }
+        .date-tile.has-entries { border-color: #ffd740; background: linear-gradient(135deg,#fffde7,#fff3e0); }
+
+        .tile-badge {
+            position: absolute; top: 6px; right: 8px;
+            background: linear-gradient(135deg,var(--rose),var(--deep));
+            color: white; font-size: 0.68rem; font-weight: 700;
+            padding: 2px 7px; border-radius: 20px; font-family: 'Lora',serif;
+            display: none;
+        }
+        .date-tile.has-entries .tile-badge { display: block; }
+
+        .tile-icon { font-size: 2.2rem; display: block; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .tile-name { font-family: 'Shadows Into Light',cursive; font-size: 1rem; color: var(--deep); line-height: 1.3; }
+
+        /* ===== MODAL PRINCIPAL (lista de entradas) ===== */
+        #date-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(10,0,20,0.88); z-index: 3000;
+            justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-box {
+            background: white; border-radius: 28px; width: 100%; max-width: 500px;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(194,24,91,0.35);
+            border: 3px solid rgba(255,105,180,0.35);
+            animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            scrollbar-width: none;
+        }
+        .modal-box::-webkit-scrollbar { display: none; }
+        @keyframes popIn { from { transform: scale(0.75); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-header {
+            background: linear-gradient(135deg,var(--rose),var(--deep));
+            padding: 22px 24px 18px; border-radius: 24px 24px 0 0; position: relative;
+        }
+        .modal-header .modal-icon { font-size: 2.6rem; display: block; margin-bottom: 5px; }
+        .modal-header h3 { font-family: 'Great Vibes',cursive; font-size: 2.5rem; color: white; text-shadow: 1px 2px 6px rgba(0,0,0,0.2); }
+        .modal-header p  { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 2px; font-style: italic; }
+        .modal-close { position: absolute; top: 14px; right: 20px; color: rgba(255,255,255,0.9); font-size: 34px; cursor: pointer; line-height: 1; transition: transform 0.2s; }
+        .modal-close:hover { transform: rotate(90deg); }
+
+        .modal-body { padding: 22px; }
+
+        /* Botón agregar nueva entrada */
+        .add-entry-btn {
+            width: 100%; padding: 13px; border-radius: 14px; margin-bottom: 18px;
+            background: linear-gradient(135deg,var(--rose),var(--pink));
+            color: white; border: none; font-family: 'Lora',serif; font-size: 1rem; font-weight: 600;
+            cursor: pointer; box-shadow: 0 5px 18px rgba(233,30,140,0.3); transition: transform 0.25s,box-shadow 0.25s;
+        }
+        .add-entry-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(233,30,140,0.4); }
+
+        /* Lista de entradas guardadas */
+        .entries-list { display: flex; flex-direction: column; gap: 14px; }
+
+        .entry-card {
+            background: linear-gradient(135deg,#fff5f8,#fff8e1);
+            border-radius: 16px; overflow: hidden;
+            border: 2px solid rgba(255,105,180,0.2);
+            box-shadow: 0 4px 14px rgba(194,24,91,0.08);
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .entry-card img.entry-photo {
+            width: 100%; height: 180px; object-fit: cover; display: block;
+            border-bottom: 2px solid rgba(255,105,180,0.15);
+        }
+
+        .entry-info { padding: 14px 16px; }
+        .entry-date-badge { display: inline-block; background: linear-gradient(135deg,var(--gold),#ffab00); color: #5d2a3e; padding: 3px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
+        .entry-num { display: inline-block; background: linear-gradient(135deg,var(--rose),var(--deep)); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; margin-bottom: 8px; }
+        .entry-desc { font-family: 'Shadows Into Light',cursive; font-size: 1.2rem; color: #5d2a3e; line-height: 1.6; background: white; padding: 10px 12px; border-radius: 10px; border-left: 4px solid var(--rose); }
+
+        .entry-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .entry-del-btn { background: transparent; border: 1.5px solid #e57373; color: #e57373; padding: 6px 14px; border-radius: 20px; font-family: 'Lora',serif; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; box-shadow: none; margin: 0; }
+        .entry-del-btn:hover { background: #e57373; color: white; transform: none; box-shadow: none; }
+
+        .empty-state { text-align: center; padding: 20px 0; color: #d4a0bc; font-style: italic; font-size: 0.95rem; }
+
+        /* ===== MODAL FORMULARIO (nueva entrada) ===== */
+        #entry-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(10,0,20,0.88); z-index: 4000;
+            justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .entry-modal-box {
+            background: white; border-radius: 28px; width: 100%; max-width: 460px;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(194,24,91,0.35);
+            border: 3px solid rgba(255,105,180,0.35);
+            animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            scrollbar-width: none;
+        }
+        .entry-modal-box::-webkit-scrollbar { display: none; }
+
+        .entry-modal-header {
+            background: linear-gradient(135deg,#7b1fa2,var(--rose));
+            padding: 20px 24px 16px; border-radius: 24px 24px 0 0; position: relative;
+        }
+        .entry-modal-header h4 { font-family: 'Great Vibes',cursive; font-size: 2.2rem; color: white; }
+        .entry-modal-header p  { color: rgba(255,255,255,0.8); font-size: 0.82rem; margin-top: 2px; }
+        .entry-modal-close { position: absolute; top: 12px; right: 18px; color: rgba(255,255,255,0.9); font-size: 32px; cursor: pointer; line-height: 1; transition: transform 0.2s; }
+        .entry-modal-close:hover { transform: rotate(90deg); }
+
+        .entry-modal-body { padding: 22px; }
+
+        .modal-photo-wrap {
+            width: 100%; height: 200px; border-radius: 14px; overflow: hidden;
+            border: 3px solid rgba(255,105,180,0.25); background: linear-gradient(135deg,#ffeef6,#fff0f5);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+            cursor: pointer; position: relative; transition: border-color 0.3s;
+        }
+        .modal-photo-wrap:hover { border-color: var(--rose); }
+        .modal-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .photo-placeholder { text-align: center; color: #d4a0bc; pointer-events: none; }
+        .photo-placeholder span { font-size: 2.8rem; display: block; }
+        .photo-placeholder p { font-size: 0.8rem; margin-top: 5px; font-family: 'Lora',serif; }
+        .modal-photo-wrap input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+        .modal-field { margin-bottom: 14px; }
+        .modal-field label { display: block; font-size: 0.78rem; color: var(--rose); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 5px; text-transform: uppercase; }
+        .modal-field input,.modal-field textarea { width: 100%; padding: 11px 13px; border-radius: 12px; border: 2px solid rgba(255,105,180,0.25); font-family: 'Shadows Into Light',cursive; font-size: 1.12rem; color: var(--text); background: #fff8fc; outline: none; transition: border-color 0.3s; resize: vertical; }
+        .modal-field input:focus,.modal-field textarea:focus { border-color: var(--rose); }
+        .modal-field input[type=date] { font-family: 'Lora',serif; font-size: 0.95rem; }
+
+        .entry-save-btn { width: 100%; padding: 13px; border-radius: 14px; margin-top: 6px; background: linear-gradient(135deg,var(--rose),var(--pink)); color: white; border: none; font-family: 'Lora',serif; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 5px 18px rgba(233,30,140,0.3); transition: transform 0.25s,box-shadow 0.25s; }
+        .entry-save-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(233,30,140,0.4); }
+
+        /* CARTA */
+        .love-letter { background: linear-gradient(135deg,#fff8e1,#ffeef6); padding: 38px; border-radius: 18px; font-family: 'Shadows Into Light',cursive; font-size: 1.5rem; color: #5d2a3e; text-align: left; line-height: 1.9; border-left: 6px solid var(--rose); box-shadow: inset 0 0 20px rgba(255,105,180,0.08); position: relative; }
+        .love-letter::after { content: '💌'; position: absolute; bottom: 20px; right: 25px; font-size: 2.5rem; opacity: 0.3; }
+        .love-letter b { font-family: 'Great Vibes',cursive; font-size: 2.2rem; color: var(--rose); }
+
+        /* NOTAS */
+        .note-item { background: linear-gradient(135deg,#ffe3ef,#fff5f8); padding: 16px 20px; margin-bottom: 12px; border-radius: 12px; border-left: 5px solid var(--gold); text-align: left; animation: slideIn 0.5s ease-out; }
+        .note-date { font-weight: 600; color: var(--rose); font-size: 0.82rem; display: block; margin-bottom: 4px; letter-spacing: 0.04em; }
+        textarea { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid rgba(255,105,180,0.3); font-family: 'Shadows Into Light',cursive; font-size: 1.2rem; outline: none; margin-top: 18px; resize: vertical; background: #fff8fc; color: var(--text); transition: border-color 0.3s; }
+        textarea:focus { border-color: var(--rose); }
+        button { background: linear-gradient(135deg,var(--rose),var(--pink)); color: white; border: none; padding: 14px 34px; border-radius: 30px; font-weight: 600; font-family: 'Lora',serif; cursor: pointer; margin-top: 14px; transition: transform 0.25s,box-shadow 0.25s; box-shadow: 0 5px 18px rgba(233,30,140,0.3); }
+        button:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 28px rgba(233,30,140,0.4); }
+
+        footer { text-align: center; padding: 40px; font-size: 0.9rem; color: #b0789b; position: relative; z-index: 1; }
+        .scroll-hint { text-align: center; color: #d4a0bc; font-size: 0.8rem; margin-top: 8px; letter-spacing: 0.05em; }
+    </style>
+</head>
+<body>
+
+<div id="heart-rain"></div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="this.style.display='none'">
+    <span class="close">&times;</span>
+    <img id="lightbox-img" src="">
+</div>
+
+<!-- MODAL LISTA DE CITAS POR CATEGORÍA -->
+<div id="date-modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <span class="modal-icon" id="modal-icon">🎬</span>
+            <h3 id="modal-title">Cita en el Cine</h3>
+            <p id="modal-subtitle">0 veces juntos</p>
+        </div>
+        <div class="modal-body">
+            <button class="add-entry-btn" onclick="openEntryForm()">➕ Agregar nueva visita</button>
+            <div class="entries-list" id="entries-list">
+                <div class="empty-state">Aún no han ido juntos aquí 🌸<br>¡Agreguen su primer recuerdo!</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL FORMULARIO NUEVA ENTRADA -->
+<div id="entry-modal">
+    <div class="entry-modal-box">
+        <div class="entry-modal-header">
+            <span class="entry-modal-close" onclick="closeEntryForm()">&times;</span>
+            <h4 id="entry-modal-title">Nueva visita</h4>
+            <p id="entry-modal-sub">Agrega el recuerdo de este día 💕</p>
+        </div>
+        <div class="entry-modal-body">
+            <div class="modal-photo-wrap">
+                <div class="photo-placeholder">
+                    <span>📷</span>
+                    <p>Toca para agregar una foto</p>
+                </div>
+                <img id="entry-preview" src="" alt="">
+                <input type="file" id="entry-photo-input" accept="image/*" onchange="previewEntryPhoto(this)">
+            </div>
+            <div class="modal-field">
+                <label>📅 ¿Cuándo fue?</label>
+                <input type="date" id="entry-date">
+            </div>
+            <div class="modal-field">
+                <label>💬 ¿Qué hicimos?</label>
+                <textarea id="entry-desc" rows="4" placeholder="Escribe aquí lo que vivimos juntos ese día tan especial..."></textarea>
+            </div>
+            <button class="entry-save-btn" onclick="saveEntry()">💾 Guardar recuerdo</button>
+        </div>
+    </div>
+</div>
+
+<!-- MÚSICA -->
+<audio id="bg-music" loop>
+    <source src="fotos/cancion.mp3" type="audio/mpeg">
+</audio>
+<div id="music-player" onclick="toggleMusic()">
+    <span class="note-icon">🎵</span>
+    <span id="music-label">Nuestra canción</span>
+</div>
+
+<header>
+    <h1>Mi Amor Eterno</h1>
+    <p class="subtitle">Adolfo &amp; Marlen ❤️</p>
+    <p class="date-sub">Nuestro camino juntos, desde aquel mágico 1 de Noviembre</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Tiempo Amándote <span class="heart-deco">❤️</span></h2>
+        <div id="countdown">
+            <div class="time-unit"><span id="y">0</span><label>Años</label></div>
+            <div class="time-unit"><span id="m">0</span><label>Meses</label></div>
+            <div class="time-unit"><span id="d">0</span><label>Días</label></div>
+            <div class="time-unit"><span id="h">0</span><label>Horas</label></div>
+            <div class="time-unit"><span id="min">0</span><label>Min</label></div>
+            <div class="time-unit"><span id="s">0</span><label>Seg</label></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Nuestra Canción <span class="heart-deco">🎶</span></h2>
+        <div class="video-box">
+            <iframe src="https://www.youtube.com/embed/mcR8cXnAcVg?rel=0" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Nuestros Momentos <span class="heart-deco">📸</span></h2>
+        <div class="carousel-container" id="gallery-container"></div>
+        <p class="scroll-hint">← desliza para ver más momentos →</p>
+    </div>
+
+    <!-- TABLERO DE CITAS -->
+    <div class="card">
+        <h2>Nuestras Citas <span class="heart-deco">❤️</span></h2>
+        <p style="text-align:center;color:#b0789b;font-size:0.9rem;margin-top:-18px;margin-bottom:22px;font-style:italic;">
+            Toca una categoría para ver o agregar recuerdos ❤️ ¡Puedes tener todas las visitas que quieras!
+        </p>
+        <div class="dates-board">
+            <div class="dates-grid" id="dates-grid"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Mi Carta para Ti <span class="heart-deco">💌</span></h2>
+        <div class="love-letter">
+            Mi niña hermosa,<br><br>
+            Eres lo mejor que me ha pasado en la vida. Gracias por cada momento y por caminar de mi mano todos estos años. Tu sonrisa es mi lugar favorito en el mundo entero.<br><br>
+            Te amo infinitamente, hoy y siempre.<br><br>
+            <b>Adolfo</b> ❤️
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Notitas con Amor <span class="heart-deco">🌸</span></h2>
+        <div id="notes-container">Cargando nuestras notitas...</div>
+        <textarea id="noteInput" rows="3" placeholder="Escribe algo lindo hoy..."></textarea>
+        <button id="saveBtn" onclick="saveNote()">💾 Guardar Notita</button>
+        <button onclick="downloadAllNotesAsText()" style="background:linear-gradient(135deg,#ffd740,#ffab00);color:#5d2a3e;display:block;width:100%;margin-top:10px;">
+            📥 Guardar mis notitas en el teléfono
+        </button>
+    </div>
+
+</div>
+
+<footer>Hecho con todo el ❤️ por Adolfo &bull; 2021 - 2026</footer>
+
+<script>
+// ===== CORAZONES =====
+const HS = ['❤️','💕','💖','💗','💓','💞','💝','🌸','✨','💫','🌷'];
+function createRainHeart() {
+    const c = document.getElementById('heart-rain'), h = document.createElement('div');
+    h.className = 'rain-heart'; h.textContent = HS[Math.floor(Math.random()*HS.length)];
+    h.style.left = (Math.random()*100)+'vw'; h.style.fontSize = (Math.random()*18+10)+'px';
+    const d = Math.random()*5+6; h.style.animationDuration = d+'s'; h.style.animationDelay = (Math.random()*2)+'s';
+    c.appendChild(h); setTimeout(()=>h.remove(),(d+3)*1000);
+}
+setInterval(createRainHeart, 300);
+for(let i=0;i<15;i++) setTimeout(createRainHeart,i*200);
+(function(){ for(let i=0;i<18;i++){ const h=document.createElement('div'); h.className='bg-heart'; h.textContent=HS[Math.floor(Math.random()*5)]; h.style.left=(Math.random()*100)+'vw'; h.style.fontSize=(Math.random()*25+15)+'px'; h.style.animationDuration=(Math.random()*12+14)+'s'; h.style.animationDelay=(Math.random()*-20)+'s'; document.body.appendChild(h); } })();
+
+// ===== MÚSICA =====
+const audio = document.getElementById('bg-music');
+let musicPlaying = false;
+function tryAutoplay() {
+    audio.volume = 0.55;
+    audio.play().then(()=>{ musicPlaying=true; document.getElementById('music-label').textContent='Pausar música'; })
+    .catch(()=>{ document.body.addEventListener('click',function s(){ audio.play().then(()=>{ musicPlaying=true; document.getElementById('music-label').textContent='Pausar música'; }); document.body.removeEventListener('click',s); },{once:true}); });
+}
+function toggleMusic() {
+    if(musicPlaying){ audio.pause(); musicPlaying=false; document.getElementById('music-label').textContent='Reproducir música'; document.getElementById('music-player').classList.add('paused'); }
+    else { audio.play(); musicPlaying=true; document.getElementById('music-label').textContent='Pausar música'; document.getElementById('music-player').classList.remove('paused'); }
+}
+
+// ===== CONTADOR =====
+const start = new Date('2021-11-01T00:00:00');
+function updateCountdown() {
+    const now=new Date(), diff=now-start;
+    const tm=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());
+    document.getElementById('y').innerText=Math.floor(tm/12); document.getElementById('m').innerText=tm%12;
+    document.getElementById('d').innerText=Math.floor((diff/86400000)%30); document.getElementById('h').innerText=Math.floor((diff/3600000)%24);
+    document.getElementById('min').innerText=Math.floor((diff/60000)%60); document.getElementById('s').innerText=Math.floor((diff/1000)%60);
+}
+setInterval(updateCountdown,1000); updateCountdown();
+
+// ===== GALERÍA =====
+const notasDeAmor = ["El día que supe que eras mi todo ❤️","Tu risa es mi melodía favorita ❤️","Contigo cada instante se convierte en magia ❤️","Mi lugar favorito en el mundo eres tú ❤️","Gracias por amarme tal como soy ❤️","En tus ojos vivo mi historia más bonita ❤️","Juntos somos invencibles, mi amor ❤️","Cada abrazo tuyo es mi hogar ❤️","Eres la razón de mi sonrisa cada mañana ❤️","Nuestro amor crece más cada día ❤️","Contigo aprendí lo que es la felicidad ❤️","Eres mi sueño más bonito hecho realidad ❤️","Te elegiría una y mil veces más ❤️","Mi corazón late solo por ti ❤️","Eres lo mejor que me pasó en la vida ❤️","Tus manos son las que siempre quiero sostener ❤️","Contigo el tiempo vuela y nunca es suficiente ❤️","Eres mi aventura favorita ❤️","En cada foto veo todo lo que amo ❤️","Prometo amarte cada día más y más ❤️","Nuestros recuerdos son mi mayor tesoro ❤️","Eres mi calma y mi tormenta perfecta ❤️","Gracias por caminar siempre a mi lado ❤️","Mi corazón te encontró y ya no quiso irse ❤️","Eres el capítulo más hermoso de mi vida ❤️","Tu amor es lo que me hace falta cada día ❤️","Juntos pintamos los mejores momentos ❤️","Eres mi persona favorita en todo el universo ❤️","Contigo soy la mejor versión de mí mismo ❤️","Te amo más de lo que las palabras pueden decir ❤️"];
+const misFotos = Array.from({length:30},(_,i)=>`fotos/foto${i+1}.jpg`);
+function cargarGaleria() {
+    const g=document.getElementById('gallery-container'); if(!g) return; g.innerHTML='';
+    misFotos.forEach((foto,idx)=>{ const item=document.createElement('div'); item.className='carousel-item';
+        item.onclick=()=>{ document.getElementById('lightbox-img').src=foto; document.getElementById('lightbox').style.display='flex'; };
+        item.innerHTML=`<img src="${foto}" alt="Momento ${idx+1}" onerror="this.parentElement.style.display='none'"><div class="photo-caption"><p>${notasDeAmor[idx%notasDeAmor.length]}</p></div>`;
+        g.appendChild(item); });
+}
+
+// ===== TABLERO DE CITAS (multi-entrada) =====
+const citasData = [
+    {id:'cine',        icon:'🎬', name:'Cita en el Cine'},
+    {id:'restaurante', icon:'🍽️', name:'Cena Romántica'},
+    {id:'restaurantecomida', icon:'🍽️', name:'Comida Romántica'},
+    {id:'parque',      icon:'🌳', name:'Paseo de Pareja'},
+    {id:'playa',       icon:'🏖️', name:'Día en la Playa'},
+    {id:'baile',       icon:'💃', name:'Noche de Baile'},
+    {id:'viaje',       icon:'✈️', name:'Nuestro Viaje'},
+    {id:'concierto',   icon:'🎶', name:'Concierto Juntos'},
+    {id:'helado',      icon:'🍦', name:'Salida de Helados'},
+    {id:'cumple',      icon:'🎂', name:'Cumpleaños'},
+    {id:'aniversario', icon:'💍', name:'Nuestro Aniversario'},
+    {id:'mercado',     icon:'🛍️', name:'Día de Compras'},
+    {id:'casa',        icon:'🏠', name:'Noche en Casa'},
+    {id:'fotos',       icon:'📸', name:'Sesión de Fotos'},
+    {id:'cafe',        icon:'☕', name:'Tarde de Café'},
+    {id:'noche',       icon:'🌙', name:'Noche Estrellada'},
+    {id:'sorpresa',    icon:'🎁', name:'Sorpresa Especial'},
+];
+
+// Storage: cada categoría guarda un ARRAY de entradas
+function loadStorage() { try { return JSON.parse(localStorage.getItem('citas_v2')||'{}'); } catch(e){ return {}; } }
+function saveStorage(d) { localStorage.setItem('citas_v2', JSON.stringify(d)); }
+
+let currentCatId = null;
+
+function buildDatesGrid() {
+    const grid = document.getElementById('dates-grid');
+    const stored = loadStorage(); grid.innerHTML='';
+    citasData.forEach(c => {
+        const entries = stored[c.id] || [];
+        const tile = document.createElement('div');
+        tile.className = 'date-tile' + (entries.length>0 ? ' has-entries' : '');
+        tile.id = 'tile-'+c.id;
+        tile.onclick = () => openCategoryModal(c.id);
+        tile.innerHTML = `<span class="tile-badge">${entries.length > 0 ? entries.length+'x' : ''}</span><span class="tile-icon">${c.icon}</span><span class="tile-name">${c.name}</span>`;
+        grid.appendChild(tile);
+    });
+}
+
+function openCategoryModal(id) {
+    currentCatId = id;
+    const cita = citasData.find(c=>c.id===id);
+    const stored = loadStorage();
+    const entries = stored[id] || [];
+
+    document.getElementById('modal-icon').textContent  = cita.icon;
+    document.getElementById('modal-title').textContent = cita.name;
+    document.getElementById('modal-subtitle').textContent =
+        entries.length === 0 ? 'Aún sin visitas guardadas' :
+        entries.length === 1 ? '1 vez juntos ❤️' : `${entries.length} veces juntos ❤️`;
+
+    renderEntries(entries);
+    document.getElementById('date-modal').style.display = 'flex';
+}
+
+function renderEntries(entries) {
+    const list = document.getElementById('entries-list');
+    if (!entries || entries.length===0) {
+        list.innerHTML = '<div class="empty-state">Aún no han ido juntos aquí ❤️<br>¡Agreguen su primer recuerdo!</div>';
+        return;
+    }
+    list.innerHTML = '';
+    // Mostrar en orden cronológico inverso (más reciente primero)
+    [...entries].reverse().forEach((e, revIdx) => {
+        const realIdx = entries.length - 1 - revIdx;
+        const card = document.createElement('div');
+        card.className = 'entry-card';
+        card.innerHTML = `
+            ${e.photo ? `<img class="entry-photo" src="${e.photo}" alt="Foto">` : ''}
+            <div class="entry-info">
+                <span class="entry-num">Visita #${realIdx+1}</span>
+                ${e.date ? `<span class="entry-date-badge">📅 ${e.date}</span>` : ''}
+                ${e.desc ? `<div class="entry-desc">${e.desc}</div>` : ''}
+                <div class="entry-actions">
+                    <button class="entry-del-btn" onclick="deleteEntry(${realIdx})">🗑️ Eliminar</button>
+                </div>
+            </div>`;
+        list.appendChild(card);
+    });
+}
+
+function closeModal() {
+    document.getElementById('date-modal').style.display='none';
+    currentCatId=null;
+}
+document.getElementById('date-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+function deleteEntry(idx) {
+    if(!confirm('¿Eliminar este recuerdo?')) return;
+    const stored = loadStorage();
+    const entries = stored[currentCatId] || [];
+    entries.splice(idx,1);
+    stored[currentCatId] = entries;
+    saveStorage(stored);
+    updateTile(currentCatId, entries.length);
+    openCategoryModal(currentCatId); // refrescar
+}
+
+function updateTile(id, count) {
+    const tile = document.getElementById('tile-'+id);
+    if(!tile) return;
+    if(count>0){ tile.classList.add('has-entries'); tile.querySelector('.tile-badge').textContent=count+'x'; }
+    else { tile.classList.remove('has-entries'); tile.querySelector('.tile-badge').textContent=''; }
+}
+
+// ===== FORMULARIO NUEVA ENTRADA =====
+function openEntryForm() {
+    const cita = citasData.find(c=>c.id===currentCatId);
+    document.getElementById('entry-modal-title').textContent = 'Nueva visita — ' + cita.name;
+    document.getElementById('entry-modal-sub').textContent   = cita.icon + ' Agrega el recuerdo de este día ❤️';
+    // limpiar
+    document.getElementById('entry-date').value='';
+    document.getElementById('entry-desc').value='';
+    const prev=document.getElementById('entry-preview'); prev.src=''; prev.style.display='none';
+    document.querySelector('.photo-placeholder').style.display='block';
+    document.getElementById('entry-photo-input').value='';
+    document.getElementById('entry-modal').style.display='flex';
+}
+
+function closeEntryForm() { document.getElementById('entry-modal').style.display='none'; }
+document.getElementById('entry-modal').addEventListener('click',function(e){ if(e.target===this) closeEntryForm(); });
+
+function previewEntryPhoto(input) {
+    if(!input.files||!input.files[0]) return;
+    const reader=new FileReader();
+    reader.onload=e=>{ const img=document.getElementById('entry-preview'); img.src=e.target.result; img.style.display='block'; document.querySelector('.photo-placeholder').style.display='none'; };
+    reader.readAsDataURL(input.files[0]);
+}
+
+async function saveEntry() {
+    const dateVal = document.getElementById('entry-date').value;
+    const desc    = document.getElementById('entry-desc').value.trim();
+    const photoBase64 = document.getElementById('entry-preview').src || '';
+    
+    // 1. Validación inicial
+    if (!desc && !dateVal && !photoBase64.startsWith('data:')) {
+        alert('Por favor agrega al menos una fecha o descripción ❤️'); 
+        return;
+    }
+
+    let uploadedPhoto = '';
+
+    // 2. Proceso de subida de imagen al servidor
+    if (photoBase64.startsWith('data:')) {
+        try {
+            const uploadRes = await fetch('/api/upload-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    image: photoBase64
+                })
+            });
+
+            const uploadData = await uploadRes.json();
+            uploadedPhoto = uploadData.url; // Obtenemos la URL de la imagen subida
+        } catch (error) {
+            console.error("Error subiendo la imagen:", error);
+            alert("Hubo un problema al guardar la imagen.");
+            return;
+        }
+    }
+
+    // 3. Guardado en LocalStorage con la nueva URL
+    const stored = loadStorage();
+    if(!stored[currentCatId]) stored[currentCatId] = [];
+    
+    stored[currentCatId].push({
+        date: dateVal ? new Date(dateVal+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}) : '',
+        desc,
+        photo: uploadedPhoto // Guardamos la URL del servidor, no el Base64 gigante
+    });
+
+    saveStorage(stored);
+    
+    // 4. Interfaz
+    updateTile(currentCatId, stored[currentCatId].length);
+    closeEntryForm();
+    openCategoryModal(currentCatId); 
+}
+
+// ===== NOTAS =====
+const notesContainer = document.getElementById('notes-container');
+function renderNote(text,date,isNew=false){ const html=`<div class="note-item"><span class="note-date">📅 ${date}</span><div>💌 ${text}</div></div>`; if(isNew) notesContainer.insertAdjacentHTML('afterbegin',html); else notesContainer.insertAdjacentHTML('beforeend',html); }
+async function loadNotes(){ try{ const res=await fetch('/api/get-notes'); const notes=await res.json(); notesContainer.innerHTML=''; if(!notes||notes.length===0) notesContainer.innerHTML='<p style="color:#b0789b;text-align:center;">No hay notitas aún... ¡sé el primero! ❤️</p>'; else notes.forEach(n=>renderNote(n.text,n.date)); }catch(e){ notesContainer.innerHTML='<p style="color:#b0789b;text-align:center;">Escribe tu primera notita de amor ❤️</p>'; } }
+async function saveNote(){ const text=document.getElementById('noteInput').value.trim(); if(!text) return; const btn=document.getElementById('saveBtn'); btn.disabled=true; btn.innerText="Guardando..."; const fecha=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}); try{ const res=await fetch('/api/save-note',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,date:fecha})}); if(res.ok){renderNote(text,fecha,true);document.getElementById('noteInput').value='';} }catch(e){renderNote(text,fecha,true);document.getElementById('noteInput').value='';} finally{btn.disabled=false;btn.innerText="💾 Guardar Notita";} }
+function downloadAllNotesAsText(){ const notes=document.querySelectorAll('.note-item'); if(!notes.length){alert("No hay notitas aún.");return;} let txt="❤️ NUESTRAS NOTITAS DE AMOR ❤️\n       Adolfo & Marlen\n"+"=".repeat(35)+"\n\n"; notes.forEach(n=>{txt+=`📅 ${n.querySelector('.note-date').innerText}\n${n.querySelector('div').innerText}\n`+"-".repeat(50)+"\n";}); txt+="\n❤️ Hecho con todo el amor de mi alma ❤️"; const blob=new Blob([txt],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Notitas_de_Adolfo.txt'; a.click(); }
+
+// ===== INICIO =====
+window.onload = () => { cargarGaleria(); loadNotes(); buildDatesGrid(); tryAutoplay(); };
+</script>
+</body>
+</html>
