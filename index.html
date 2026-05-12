@@ -932,7 +932,7 @@ function renderNotesCalendar() {
         cell.className = 'note-day' + (key === todayKey ? ' today' : '') + (notes.length ? ' has-notes' : '');
 
         const hearts = notes.length > 0
-            ? '❤️'.repeat(Math.min(notes.length, 6)) + (notes.length > 6 ? ` +${notes.length - 6}` : '')
+            ? '👫🏻'.repeat(Math.min(notes.length, 6)) + (notes.length > 6 ? ` +${notes.length - 6}` : '')
             : '';
 
         cell.innerHTML = `
