@@ -14,16 +14,18 @@ export default async function handler(req, res) {
   try {
     const { image } = req.body;
 
-    const uploadResponse = await cloudinary.uploader.upload(image, {
+    if (!image) {
+      return res.status(400).json({ error: 'No llegó imagen' });
+    }
+
+    const result = await cloudinary.uploader.upload(image, {
       folder: 'historia-amor',
     });
 
-    res.status(200).json({
-      url: uploadResponse.secure_url,
-    });
-
+    return res.status(200).json({ url: result.secure_url });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error subiendo imagen' });
+    return res.status(500).json({
+      error: error.message,
+    });
   }
 }
