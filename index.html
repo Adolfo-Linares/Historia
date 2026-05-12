@@ -550,8 +550,7 @@ function renderEntries(entries) {
                 ${e.date ? `<span class="entry-date-badge">📅 ${e.date}</span>` : ''}
                 ${e.desc ? `<div class="entry-desc">${e.desc}</div>` : ''}
                 <div class="entry-actions">
-                    <button class="entry-del-btn" onclick="deleteEntry(${realIdx})">🗑️ Eliminar</button>
-                </div>
+<button class="entry-del-btn" onclick="deleteEntry(${realIdx})">🗑️ Eliminar</button>                </div>
             </div>`;
         list.appendChild(card);
     });
@@ -582,6 +581,32 @@ function updateTile(id, count) {
     else { tile.classList.remove('has-entries'); tile.querySelector('.tile-badge').textContent=''; }
 }
 
+async function deleteEntry(idx) {
+    if (!confirm('¿Eliminar este recuerdo?')) return;
+
+    const res = await fetch('/api/delete-entry', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            categoryId: currentCatId,
+            index: idx
+        })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        alert('Error al eliminar: ' + (data.error || 'desconocido'));
+        return;
+    }
+
+    citasStorage = data.data;
+
+    await buildDatesGrid();
+    openCategoryModal(currentCatId);
+}
 // ===== FORMULARIO NUEVA ENTRADA =====
 function openEntryForm() {
     const cita = citasData.find(c=>c.id===currentCatId);

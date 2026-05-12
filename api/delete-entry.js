@@ -1,5 +1,5 @@
-import { kv } from "@vercel/kv";
-import { v2 as cloudinary } from "cloudinary";
+import { kv } from '@vercel/kv';
+import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,37 +8,42 @@ cloudinary.config({
 });
 
 export default async function handler(req, res) {
-  if (req.method !== "DELETE") {
-    return res.status(405).json({ error: "Método no permitido" });
+  if (req.method !== 'DELETE') {
+    return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
-    const { id } = req.body;
+    const { categoryId, index } = req.body;
 
-    const entries = await kv.get("entries") || [];
-
-    const entry = entries.find(e => e.id === id);
-
-    if (!entry) {
-      return res.status(404).json({ error: "Entrada no encontrada" });
+    if (!categoryId || index === undefined) {
+      return res.status(400).json({ error: 'Faltan datos' });
     }
 
-    // borrar imagen de cloudinary
+    const stored = (await kv.get('citas_v2')) || {};
+    const entries = stored[categoryId] || [];
+
+    const entry = entries[index];
+
+    if (!entry) {
+      return res.status(404).json({ error: 'Recuerdo no encontrado' });
+    }
+
     if (entry.public_id) {
       await cloudinary.uploader.destroy(entry.public_id);
     }
 
-    // borrar de la BD
-    const nuevas = entries.filter(e => e.id !== id);
+    entries.splice(index, 1);
+    stored[categoryId] = entries;
 
-    await kv.set("entries", nuevas);
+    await kv.set('citas_v2', stored);
 
-    res.status(200).json({
-      success: true
+    return res.status(200).json({
+      ok: true,
+      data: stored
     });
 
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: error.message
     });
   }
