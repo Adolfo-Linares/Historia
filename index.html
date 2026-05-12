@@ -192,10 +192,20 @@
         }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .entry-card img.entry-photo {
-            width: 100%; height: 180px; object-fit: cover; display: block;
-            border-bottom: 2px solid rgba(255,105,180,0.15);
-        }
+.entry-card img.entry-photo {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+    border-bottom: 2px solid rgba(255,105,180,0.15);
+    cursor: pointer;
+    transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.entry-card img.entry-photo:hover {
+    transform: scale(1.02);
+    filter: brightness(1.05);
+}
 
         .entry-info { padding: 14px 16px; }
         .entry-date-badge { display: inline-block; background: linear-gradient(135deg,var(--gold),#ffab00); color: #5d2a3e; padding: 3px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
@@ -454,9 +464,12 @@ const misFotos = Array.from({length:30},(_,i)=>`fotos/foto${i+1}.jpg`);
 function cargarGaleria() {
     const g=document.getElementById('gallery-container'); if(!g) return; g.innerHTML='';
     misFotos.forEach((foto,idx)=>{ const item=document.createElement('div'); item.className='carousel-item';
-        item.onclick=()=>{ document.getElementById('lightbox-img').src=foto; document.getElementById('lightbox').style.display='flex'; };
-        item.innerHTML=`<img src="${foto}" alt="Momento ${idx+1}" onerror="this.parentElement.style.display='none'"><div class="photo-caption"><p>${notasDeAmor[idx%notasDeAmor.length]}</p></div>`;
+item.onclick = () => openLightbox(foto);        item.innerHTML=`<img src="${foto}" alt="Momento ${idx+1}" onerror="this.parentElement.style.display='none'"><div class="photo-caption"><p>${notasDeAmor[idx%notasDeAmor.length]}</p></div>`;
         g.appendChild(item); });
+}
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
 }
 
 // ===== TABLERO DE CITAS (multi-entrada) =====
@@ -544,8 +557,7 @@ function renderEntries(entries) {
         const card = document.createElement('div');
         card.className = 'entry-card';
         card.innerHTML = `
-            ${e.photo ? `<img class="entry-photo" src="${e.photo}" alt="Foto">` : ''}
-            <div class="entry-info">
+${e.photo ? `<img class="entry-photo" src="${e.photo}" alt="Foto" onclick="openLightbox('${e.photo}')">` : ''}            <div class="entry-info">
                 <span class="entry-num">Visita #${realIdx+1}</span>
                 ${e.date ? `<span class="entry-date-badge">📅 ${e.date}</span>` : ''}
                 ${e.desc ? `<div class="entry-desc">${e.desc}</div>` : ''}
