@@ -729,15 +729,26 @@ const citasData = [
 ];
 
 // Storage: cada categoría guarda un ARRAY de entradas
-function loadStorage() { try { return JSON.parse(localStorage.getItem('citas_v2')||'{}'); } catch(e){ return {}; } }
-function saveStorage(d) { localStorage.setItem('citas_v2', JSON.stringify(d)); }
+let citasStorage = {};
 
+async function loadStorage() {
+    try {
+        const res = await fetch('/api/get-entries');
+        citasStorage = await res.json();
+        return citasStorage || {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function getStorage() {
+    return citasStorage || {};
+}
 let currentCatId = null;
 
-function buildDatesGrid() {
-    const grid = document.getElementById('dates-grid');
-    const stored = loadStorage(); grid.innerHTML='';
-    citasData.forEach(c => {
+async function buildDatesGrid(){
+const grid = document.getElementById('dates-grid');
+const stored = getStorage();    citasData.forEach(c => {
         const entries = stored[c.id] || [];
         const tile = document.createElement('div');
         tile.className = 'date-tile' + (entries.length>0 ? ' has-entries' : '');
@@ -838,24 +849,67 @@ function previewEntryPhoto(input) {
     reader.readAsDataURL(input.files[0]);
 }
 
-function saveEntry() {
+async function saveEntry() {
     const dateVal = document.getElementById('entry-date').value;
-    const desc    = document.getElementById('entry-desc').value.trim();
-    const photo   = document.getElementById('entry-preview').src||'';
-    if (!desc && !dateVal && !photo.startsWith('data:')) {
-        alert('Por favor agrega al menos una fecha o descripción ❤️'); return;
+    const desc = document.getElementById('entry-desc').value.trim();
+    const photoBase64 = document.getElementById('entry-preview').src || '';
+
+    if (!desc && !dateVal && !photoBase64.startsWith('data:')) {
+        alert('Por favor agrega al menos una fecha, descripción o foto ❤️');
+        return;
     }
-    const stored = loadStorage();
-    if(!stored[currentCatId]) stored[currentCatId]=[];
-    stored[currentCatId].push({
-        date:  dateVal ? new Date(dateVal+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}) : '',
+
+    let uploadedPhoto = '';
+    let publicId = '';
+
+    if (photoBase64.startsWith('data:')) {
+        const uploadRes = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: photoBase64 })
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+            alert('Error al subir imagen: ' + (uploadData.error || 'desconocido'));
+            return;
+        }
+
+        uploadedPhoto = uploadData.url;
+        publicId = uploadData.public_id || '';
+    }
+
+    const entry = {
+        date: dateVal ? new Date(dateVal + 'T12:00:00').toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }) : '',
         desc,
-        photo: photo.startsWith('data:') ? photo : ''
+        photo: uploadedPhoto,
+        public_id: publicId
+    };
+
+    const res = await fetch('/api/save-entry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            categoryId: currentCatId,
+            entry
+        })
     });
-    saveStorage(stored);
-    updateTile(currentCatId, stored[currentCatId].length);
+
+    if (!res.ok) {
+        alert('Error al guardar recuerdo en la BD');
+        return;
+    }
+
+    await buildDatesGrid();
+    await loadStorage();
+
     closeEntryForm();
-    openCategoryModal(currentCatId); // refrescar lista
+    openCategoryModal(currentCatId);
 }
 
 // ===== NOTAS CALENDARIO =====
