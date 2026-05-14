@@ -316,7 +316,15 @@ font-style: italic; font-size: 1.5rem; color: #5d2a3e; text-align: left; line-he
     margin-bottom: 10px;
     letter-spacing: 0.04em;
 }
-.note-item div 
+
+.note-item div {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 1.25rem;
+    color: #5d2a3e;
+    line-height: 1.7;
+}
+
 .notes-calendar-head {
     display: flex;
     justify-content: space-between;
@@ -710,7 +718,7 @@ function cargarGaleria() {
         g.appendChild(item); });
 }
 
-// ===== TABLERO DE CITAS (multi-entrada) =====
+// ===== TABLERO DE CITAS (multi-entrada + BD + Cloudinary) =====
 const citasData = [
     {id:'cine',        icon:'🎬', name:'Cita en el Cine'},
     {id:'restaurante', icon:'🍽️', name:'Cena Romántica'},
@@ -728,15 +736,18 @@ const citasData = [
     {id:'sorpresa',    icon:'🎁', name:'Sorpresa Especial'},
 ];
 
-// Storage: cada categoría guarda un ARRAY de entradas
 let citasStorage = {};
+let currentCatId = null;
 
 async function loadStorage() {
     try {
-        const res = await fetch('/api/get-entries');
-        citasStorage = await res.json();
-        return citasStorage || {};
+        const res = await fetch('/api/get-entries', { cache: 'no-store' });
+        const data = await res.json();
+        citasStorage = data && typeof data === 'object' ? data : {};
+        return citasStorage;
     } catch (e) {
+        console.error('Error cargando citas:', e);
+        citasStorage = {};
         return {};
     }
 }
@@ -744,28 +755,36 @@ async function loadStorage() {
 function getStorage() {
     return citasStorage || {};
 }
-let currentCatId = null;
 
-async function buildDatesGrid(){
-const grid = document.getElementById('dates-grid');
-const stored = getStorage();    citasData.forEach(c => {
+async function buildDatesGrid() {
+    const grid = document.getElementById('dates-grid');
+    if (!grid) return;
+
+    const stored = await loadStorage();
+    grid.innerHTML = '';
+
+    citasData.forEach(c => {
         const entries = stored[c.id] || [];
         const tile = document.createElement('div');
-        tile.className = 'date-tile' + (entries.length>0 ? ' has-entries' : '');
-        tile.id = 'tile-'+c.id;
+        tile.className = 'date-tile' + (entries.length > 0 ? ' has-entries' : '');
+        tile.id = 'tile-' + c.id;
         tile.onclick = () => openCategoryModal(c.id);
-        tile.innerHTML = `<span class="tile-badge">${entries.length > 0 ? entries.length+'x' : ''}</span><span class="tile-icon">${c.icon}</span><span class="tile-name">${c.name}</span>`;
+        tile.innerHTML = `
+            <span class="tile-badge">${entries.length > 0 ? entries.length + 'x' : ''}</span>
+            <span class="tile-icon">${c.icon}</span>
+            <span class="tile-name">${c.name}</span>
+        `;
         grid.appendChild(tile);
     });
 }
 
 function openCategoryModal(id) {
     currentCatId = id;
-    const cita = citasData.find(c=>c.id===id);
-    const stored = loadStorage();
+    const cita = citasData.find(c => c.id === id);
+    const stored = getStorage();
     const entries = stored[id] || [];
 
-    document.getElementById('modal-icon').textContent  = cita.icon;
+    document.getElementById('modal-icon').textContent = cita.icon;
     document.getElementById('modal-title').textContent = cita.name;
     document.getElementById('modal-subtitle').textContent =
         entries.length === 0 ? 'Aún sin visitas guardadas' :
@@ -775,77 +794,120 @@ function openCategoryModal(id) {
     document.getElementById('date-modal').style.display = 'flex';
 }
 
+function escapeForOnclick(value) {
+    return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 function renderEntries(entries) {
     const list = document.getElementById('entries-list');
-    if (!entries || entries.length===0) {
+    if (!entries || entries.length === 0) {
         list.innerHTML = '<div class="empty-state">Aún no han ido juntos aquí ❤️<br>¡Agreguen su primer recuerdo!</div>';
         return;
     }
+
     list.innerHTML = '';
-    // Mostrar en orden cronológico inverso (más reciente primero)
+
     [...entries].reverse().forEach((e, revIdx) => {
         const realIdx = entries.length - 1 - revIdx;
+        const photoUrl = e.photo || '';
+
         const card = document.createElement('div');
         card.className = 'entry-card';
         card.innerHTML = `
-            ${e.photo ? `<img class="entry-photo" src="${e.photo}" alt="Foto" onclick="openLightbox('${e.photo}')">` : ''}
+            ${photoUrl ? `<img class="entry-photo" src="${photoUrl}" alt="Foto" onclick="openLightbox('${escapeForOnclick(photoUrl)}')">` : ''}
             <div class="entry-info">
-                <span class="entry-num">Visita #${realIdx+1}</span>
+                <span class="entry-num">Visita #${realIdx + 1}</span>
                 ${e.date ? `<span class="entry-date-badge">📅 ${e.date}</span>` : ''}
                 ${e.desc ? `<div class="entry-desc">${e.desc}</div>` : ''}
                 <div class="entry-actions">
                     <button class="entry-del-btn" onclick="deleteEntry(${realIdx})">🗑️ Eliminar</button>
                 </div>
-            </div>`;
+            </div>
+        `;
         list.appendChild(card);
     });
 }
 
 function closeModal() {
-    document.getElementById('date-modal').style.display='none';
-    currentCatId=null;
+    document.getElementById('date-modal').style.display = 'none';
+    currentCatId = null;
 }
-document.getElementById('date-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 
-function deleteEntry(idx) {
-    if(!confirm('¿Eliminar este recuerdo?')) return;
-    const stored = loadStorage();
-    const entries = stored[currentCatId] || [];
-    entries.splice(idx,1);
-    stored[currentCatId] = entries;
-    saveStorage(stored);
-    updateTile(currentCatId, entries.length);
-    openCategoryModal(currentCatId); // refrescar
+document.getElementById('date-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+async function deleteEntry(idx) {
+    if (!confirm('¿Eliminar este recuerdo?')) return;
+
+    const res = await fetch('/api/delete-entry', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            categoryId: currentCatId,
+            index: idx
+        })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        alert('Error al eliminar: ' + (data.error || 'desconocido'));
+        return;
+    }
+
+    citasStorage = data.data || {};
+    await buildDatesGrid();
+    openCategoryModal(currentCatId);
 }
 
 function updateTile(id, count) {
-    const tile = document.getElementById('tile-'+id);
-    if(!tile) return;
-    if(count>0){ tile.classList.add('has-entries'); tile.querySelector('.tile-badge').textContent=count+'x'; }
-    else { tile.classList.remove('has-entries'); tile.querySelector('.tile-badge').textContent=''; }
+    const tile = document.getElementById('tile-' + id);
+    if (!tile) return;
+
+    if (count > 0) {
+        tile.classList.add('has-entries');
+        tile.querySelector('.tile-badge').textContent = count + 'x';
+    } else {
+        tile.classList.remove('has-entries');
+        tile.querySelector('.tile-badge').textContent = '';
+    }
 }
 
 // ===== FORMULARIO NUEVA ENTRADA =====
 function openEntryForm() {
-    const cita = citasData.find(c=>c.id===currentCatId);
+    const cita = citasData.find(c => c.id === currentCatId);
     document.getElementById('entry-modal-title').textContent = 'Nueva visita — ' + cita.name;
-    document.getElementById('entry-modal-sub').textContent   = cita.icon + ' Agrega el recuerdo de este día ❤️';
-    // limpiar
-    document.getElementById('entry-date').value='';
-    document.getElementById('entry-desc').value='';
-    const prev=document.getElementById('entry-preview'); prev.src=''; prev.style.display='none';
-    document.querySelector('.photo-placeholder').style.display='block';
-    document.getElementById('entry-photo-input').value='';
-    document.getElementById('entry-modal').style.display='flex';
+    document.getElementById('entry-modal-sub').textContent = cita.icon + ' Agrega el recuerdo de este día ❤️';
+
+    document.getElementById('entry-date').value = '';
+    document.getElementById('entry-desc').value = '';
+    const prev = document.getElementById('entry-preview');
+    prev.src = '';
+    prev.style.display = 'none';
+    document.querySelector('.photo-placeholder').style.display = 'block';
+    document.getElementById('entry-photo-input').value = '';
+    document.getElementById('entry-modal').style.display = 'flex';
 }
 
-function closeEntryForm() { document.getElementById('entry-modal').style.display='none'; }
-document.getElementById('entry-modal').addEventListener('click',function(e){ if(e.target===this) closeEntryForm(); });
+function closeEntryForm() {
+    document.getElementById('entry-modal').style.display = 'none';
+}
+
+document.getElementById('entry-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeEntryForm();
+});
 
 function previewEntryPhoto(input) {
-    if(!input.files||!input.files[0]) return;
-    const reader=new FileReader();
-    reader.onload=e=>{ const img=document.getElementById('entry-preview'); img.src=e.target.result; img.style.display='block'; document.querySelector('.photo-placeholder').style.display='none'; };
+    if (!input.files || !input.files[0]) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = document.getElementById('entry-preview');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        document.querySelector('.photo-placeholder').style.display = 'none';
+    };
     reader.readAsDataURL(input.files[0]);
 }
 
@@ -859,57 +921,70 @@ async function saveEntry() {
         return;
     }
 
+    const btn = document.querySelector('.entry-save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
     let uploadedPhoto = '';
     let publicId = '';
 
-    if (photoBase64.startsWith('data:')) {
-        const uploadRes = await fetch('/api/upload-image', {
+    try {
+        if (photoBase64.startsWith('data:')) {
+            const uploadRes = await fetch('/api/upload-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: photoBase64 })
+            });
+
+            const uploadData = await uploadRes.json();
+
+            if (!uploadRes.ok) {
+                alert('Error al subir imagen: ' + (uploadData.error || 'desconocido'));
+                return;
+            }
+
+            uploadedPhoto = uploadData.url || '';
+            publicId = uploadData.public_id || '';
+        }
+
+        const entry = {
+            date: dateVal ? new Date(dateVal + 'T12:00:00').toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            }) : '',
+            desc,
+            photo: uploadedPhoto,
+            public_id: publicId
+        };
+
+        const res = await fetch('/api/save-entry', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: photoBase64 })
+            body: JSON.stringify({
+                categoryId: currentCatId,
+                entry
+            })
         });
 
-        const uploadData = await uploadRes.json();
+        const saveData = await res.json().catch(() => ({}));
 
-        if (!uploadRes.ok) {
-            alert('Error al subir imagen: ' + (uploadData.error || 'desconocido'));
+        if (!res.ok) {
+            alert('Error al guardar recuerdo en la BD: ' + (saveData.error || 'desconocido'));
             return;
         }
 
-        uploadedPhoto = uploadData.url;
-        publicId = uploadData.public_id || '';
+        await loadStorage();
+        await buildDatesGrid();
+        closeEntryForm();
+        openCategoryModal(currentCatId);
+
+    } catch (e) {
+        alert('Error al guardar recuerdo: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Guardar recuerdo';
     }
-
-    const entry = {
-        date: dateVal ? new Date(dateVal + 'T12:00:00').toLocaleDateString('es-MX', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        }) : '',
-        desc,
-        photo: uploadedPhoto,
-        public_id: publicId
-    };
-
-    const res = await fetch('/api/save-entry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            categoryId: currentCatId,
-            entry
-        })
-    });
-
-    if (!res.ok) {
-        alert('Error al guardar recuerdo en la BD');
-        return;
-    }
-
-    await buildDatesGrid();
-    await loadStorage();
-
-    closeEntryForm();
-    openCategoryModal(currentCatId);
 }
 
 // ===== NOTAS CALENDARIO =====
@@ -1098,7 +1173,7 @@ function downloadAllNotesAsText(){
 }
 
 // ===== INICIO =====
-window.onload = () => { cargarGaleria(); loadNotes(); buildDatesGrid(); tryAutoplay(); };
+window.onload = async () => { cargarGaleria(); await loadStorage(); await buildDatesGrid(); loadNotes(); tryAutoplay(); };
 </script>
 </body>
 </html>
